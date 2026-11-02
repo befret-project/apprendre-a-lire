@@ -1,0 +1,10 @@
+outils/sons/piper/
+outils/sons/*.onnx
+outils/sons/*.onnx.json
+outils/sons/MODEL_CARD
+outils/sons/out/
+outils/sons/c2/
+outils/sons/cand/
+outils/sons/sons2*.json
+outils/sons/jobs2*.json
+__pycache__/
