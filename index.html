@@ -182,7 +182,7 @@
   <!-- ACCUEIL -->
   <section class="screen on" id="home">
     <h1>J'apprends <span class="v">à</span> lire !</h1>
-    <p class="sub">Choisis un jeu</p>
+    <p class="sub">Choisis un jeu <span id="nivInfo" style="display:block;font-size:15px;margin-top:2px"></span></p>
     <div class="menu">
       <button class="tile" style="background:var(--pink)" data-go="lettres"><span class="ico">🔤</span>Les lettres<small>Touche et écoute</small></button>
       <button class="tile" style="background:var(--teal)" data-go="peche"><span class="ico">🎣</span>La pêche<small>Attrape les lettres</small></button>
@@ -401,9 +401,13 @@
   /* ---------- Couleurs voyelles / consonnes ---------- */
   var VOY = 'aeiouyéèêàâîôûù';
   function color(txt){
-    return txt.split('').map(function(ch){
+    var t = txt.split('');
+    return t.map(function(ch, i){
       if(ch==='·') return '<span class="syl-dot">·</span>';
-      return '<span class="'+(VOY.indexOf(ch.toLowerCase())>=0?'v':'c')+'">'+ch+'</span>';
+      var v = VOY.indexOf(ch.toLowerCase())>=0;
+      // « n » nasal (on, an, in, en, un) : précédé d'une voyelle, pas suivi d'une voyelle ni d'un n/m
+      if(ch==='n' && i>0 && 'aeiou'.indexOf(t[i-1])>=0 && !(i+1<t.length && (VOY.indexOf(t[i+1])>=0 || 'nm'.indexOf(t[i+1])>=0))) v = true;
+      return '<span class="'+(v?'v':'c')+'">'+ch+'</span>';
     }).join('');
   }
 
@@ -415,7 +419,10 @@
   function saveKids(){ store('lire_profils', JSON.stringify(kids)); }
   function cur(){ return kids.find(function(k){ return k.id === active; }) || null; }
   var stars = cur() ? cur().stars : (parseInt(store('lire_stars')||'0',10)||0);
-  function renderStars(){ var k = cur(); $('stars').textContent = (k ? k.avatar + ' ' : '') + '⭐ ' + stars; }
+  // Niveau 1 : voyelles simples. Niveau 2 : + ch, ou, on, an, in, oi.
+  function niveau(){ var k = cur(); return k ? (k.level || 1) : (parseInt(store('lire_niveau')||'1',10) || 1); }
+  function renderStars(){ var k = cur(); $('stars').textContent = (k ? k.avatar + ' ' : '') + '⭐ ' + stars;
+    var nv = $('nivInfo'); if(nv) nv.textContent = 'Niveau ' + niveau() + (niveau() === 2 ? ' · ch, ou, on, an, in, oi' : ''); }
   var bravoTimer = null;
   function closeBravo(){ clearTimeout(bravoTimer); $('bravo').classList.remove('on'); }
   function addStar(){
@@ -479,7 +486,7 @@
     else if(id==='peche'){ pDone=0; newPeche(true); }
     else if(id==='entends'){ nDone=0; newEntends(true); }
     else if(id==='train'){ tDone=0; newTrain(true); }
-    else if(CONSIGNES[id]) play(['c_'+id]);
+    else if(CONSIGNES[id]){ if(id==='lettres') buildLetters(); if(id==='syllabes') setupSyl(); play(['c_'+id]); }
     else if(id==='who'){ renderKids(); if(!silent) play([kids.length ? 'p_quijoue' : 'p_ajoute']); }
   }
   document.querySelectorAll('[data-go]').forEach(function(b){ tap(b, function(){ go(b.dataset.go); }, 500); });
@@ -545,10 +552,19 @@
   }, 400);
   function renderKidAdmin(){
     var box = $('kidAdmin'); box.innerHTML = '';
-    if(!kids.length){ box.innerHTML = '<div class="kadm">Aucun profil.</div>'; return; }
+    if(!kids.length){
+      box.innerHTML = '<div class="kadm">Aucun profil. </div>';
+      var g = document.createElement('button'); g.style.background = '#E3F0FF'; g.textContent = 'Niveau ' + niveau() + ' ⇄';
+      g.addEventListener('click', function(){ store('lire_niveau', niveau() === 1 ? '2' : '1'); renderKidAdmin(); renderStars(); });
+      box.firstChild.appendChild(g); return;
+    }
     kids.forEach(function(k){
       var d = document.createElement('div'); d.className = 'kadm';
-      d.innerHTML = '<span style="font-size:26px">'+k.avatar+'</span><span>'+esc(k.name)+' · ⭐ '+k.stars+'</span>';
+      d.innerHTML = '<span style="font-size:26px">'+k.avatar+'</span><span style="flex:1">'+esc(k.name)+' · ⭐ '+k.stars+'</span>';
+      var lv = document.createElement('button'); lv.style.background = '#E3F0FF';
+      lv.textContent = 'Niveau ' + (k.level || 1) + ' ⇄';
+      lv.addEventListener('click', function(){ k.level = (k.level || 1) === 1 ? 2 : 1; saveKids(); renderKidAdmin(); renderStars(); });
+      d.appendChild(lv);
       var del = document.createElement('button'); del.textContent = '🗑️ Supprimer';
       var armed = false;
       del.addEventListener('click', function(){
@@ -577,8 +593,14 @@
     L('b','banane','🍌','ba'), L('c','canard','🦆','ca'), L('g','gâteau','🎂','ga'), L('j','jus','🧃'),
     L('k','kiwi','🥝','ki'), L('z','zèbre','🦓','zè'), L('ch','chat','🐱'), L('ou','hibou','🦉','ou')
   ];
+  var LETTRES2 = LETTRES.concat([L('on','ballon','🎈','on'), L('an','maman','👩','an'), L('in','lapin','🐰','in'), L('oi','roi','🤴','oi')]);
   var grid = $('letterGrid'), seenLetters = {};
-  LETTRES.forEach(function(L){
+  function buildLetters(){
+    grid.innerHTML = '';
+    $('letterShow').innerHTML = '<div class="hint">Touche une lettre 👇</div>';
+    (niveau() === 2 ? LETTRES2 : LETTRES).forEach(addLetter);
+  }
+  function addLetter(L){
     var b=document.createElement('button');
     b.className='letter'; b.innerHTML=color(L[0]);
     tap(b, function(){
@@ -590,14 +612,19 @@
       if(!seenLetters[L[0]]){ seenLetters[L[0]]=1; if(Object.keys(seenLetters).length%6===0 && addStar()) setTimeout(showTrophy,1500); }
     });
     grid.appendChild(b);
-  });
+  }
 
   /* ---------- Jeu 2 : syllabes ---------- */
   var CONS = ['m','p','l','r','s','t','v','f','n','d','b'];
   var VOYS = ['a','e','i','o','u','é'];
+  var NOUV = ['ou','on','an','in','oi'];
+  function consL(){ return niveau() === 2 ? CONS.concat(['ch']) : CONS; }
+  function voyL(){ return niveau() === 2 ? VOYS.concat(NOUV) : VOYS; }
+  // syllabes proposées dans les jeux d'écoute (niveau 2 : surtout les nouveaux sons)
+  function voyJeu(){ return niveau() === 2 ? ['a','i','o','ou','on','an','in','oi'] : ['a','i','o','u','é']; }
   var curC='m', curV='a', combos={};
   function renderSyl(){
-    $('sC').textContent=curC; $('sV').textContent=curV; $('sR').innerHTML=color(curC+curV);
+    $('sC').innerHTML=color(curC).replace(/class="v"/g,'class="c"'); $('sV').innerHTML=color(curV).replace(/class="c"/g,'class="v"'); $('sR').innerHTML=color(curC+curV);
   }
   function buildRow(id, list, isC){
     var row=$(id);
@@ -615,7 +642,13 @@
       row.appendChild(b);
     });
   }
-  buildRow('rowC', CONS, true); buildRow('rowV', VOYS, false); renderSyl();
+  function setupSyl(){
+    if(consL().indexOf(curC) < 0) curC = 'm';
+    if(voyL().indexOf(curV) < 0) curV = 'a';
+    $('rowC').innerHTML = ''; $('rowV').innerHTML = '';
+    buildRow('rowC', consL(), true); buildRow('rowV', voyL(), false); renderSyl();
+  }
+  setupSyl();
   tap($('sSay'), function(){ play(['s_'+curC+curV]); });
 
   /* ---------- Jeu 3 : écoute et trouve ----------
@@ -624,12 +657,12 @@
   var eTarget=null, eLock=false, eErr=0;
   function newEcoute(speak){
     eLock=false; eErr=0; dots('eDots', eDone);
-    var vs=['a','i','o','u','é'];
-    var c=rnd(CONS), v=rnd(vs);
+    var vs=voyJeu(), cs=consL();
+    var c=rnd(cs), v=rnd(vs);
     eTarget={s:c+v, k:'s_'+c+v};
     var opts=[eTarget.s];
     while(opts.length<3){
-      var o = (Math.random()<0.5 ? rnd(CONS)+v : c+rnd(vs));
+      var o = (Math.random()<0.5 ? rnd(cs)+v : c+rnd(vs));
       if(opts.indexOf(o)<0) opts.push(o);
     }
     var box=$('eChoices'); box.innerHTML='';
@@ -666,14 +699,17 @@
     ['ki·wi','🥝'],['dé','🎲'],['ba·na·ne','🍌'],['ro·be','👗'],['pi·le','🔋'],['ca·fé','☕'],
     ['so·fa','🛋️'],['pa·pa','👨'],['ma·mi','👵'],['li·vre','📖'],['sa·la·de','🥗'],['tor·tue','🐢']
   ];
+  var MOTS2 = [["mou·ton", "🐑"], ["ma·man", "👩"], ["la·pin", "🐰"], ["sa·pin", "🎄"], ["co·chon", "🐷"], ["bal·lon", "🎈"], ["ca·mion", "🚚"], ["dra·gon", "🐉"], ["pan·da", "🐼"], ["ci·tron", "🍋"], ["é·toi·le", "⭐"], ["poi·re", "🍐"], ["ca·nard", "🦆"], ["bon·bon", "🍬"], ["ru·ban", "🎀"], ["pois·son", "🐟"], ["chat", "🐱"], ["lion", "🦁"], ["chien", "🐶"], ["roi", "🤴"]];
+  function motsL(){ return niveau() === 2 ? MOTS2 : MOTS; }
   var mTarget=null, mLock=false, mErr=0, lastMot=null;
   function plain(w){ return w.replace(/·/g,''); }
   function sylKeys(w){ return w.split('·').map(function(x){ return 's_'+x; }); }
   function newMot(){
     mLock=false; mErr=0; dots('mDots', mDone);
-    var t; do{ t=rnd(MOTS); }while(t===lastMot); lastMot=t; mTarget=t;
+    var ML = motsL();
+    var t; do{ t=rnd(ML); }while(t===lastMot); lastMot=t; mTarget=t;
     $('mEmo').textContent=t[1];
-    var others=shuffle(MOTS.filter(function(m){return m!==t;})).slice(0,2);
+    var others=shuffle(ML.filter(function(m){return m!==t;})).slice(0,2);
     var box=$('mChoices'); box.innerHTML='';
     shuffle([t].concat(others)).forEach(function(m){
       var b=document.createElement('button');
@@ -702,13 +738,16 @@
   tap($('mHelp'), function(){ if(mTarget && !mLock) play(sylKeys(mTarget[0])); });
   /* ---------- Jeu : la pêche aux lettres ----------
      4 poissons portent la bonne lettre, 6 autres une lettre différente. Ils nagent lentement. */
-  var PECHE_L = LETTRES.filter(function(x){ return x[0].length===1; });
+  var PECHE_1 = LETTRES.filter(function(x){ return x[0].length===1; });
+  var PECHE_2 = LETTRES2.filter(function(x){ return x[0].length===2; });   // ch ou on an in oi
   var pTarget=null, pLeft=0, pErr=0, pLock=false;
   function newPeche(intro){
     pLock=false; pErr=0; dots('pDots', pDone);
-    var T = rnd(PECHE_L); pTarget = T;
+    var N2 = niveau() === 2, PL = N2 ? PECHE_2 : PECHE_1;
+    var T = rnd(PL); pTarget = T;
     $('pTarget').innerHTML = color(T[0]);
-    var others = shuffle(PECHE_L.filter(function(x){ return x!==T; })).slice(0,6).map(function(x){ return x[0]; });
+    var pool = N2 ? PECHE_2.concat(shuffle(PECHE_1).slice(0,2)) : PECHE_1;
+    var others = shuffle(pool.filter(function(x){ return x!==T; })).slice(0,6).map(function(x){ return x[0]; });
     var letters = shuffle([T[0],T[0],T[0],T[0]].concat(others));
     pLeft = 4;
     var pond = $('pond'); pond.innerHTML='';
@@ -749,14 +788,15 @@
 
   /* ---------- Jeu : J'entends ou pas ? ----------
      Les mots ont été classés à partir de leur phonétique ; les cas ambigus ont été écartés. */
-  var ENT = {"emoji": {"chat": "🐱", "lune": "🌙", "loup": "🐺", "vélo": "🚲", "moto": "🏍️", "lit": "🛏️", "poule": "🐔", "souris": "🐭", "pomme": "🍎", "roue": "🛞", "sac": "🎒", "pizza": "🍕", "kiwi": "🥝", "tortue": "🐢", "banane": "🍌", "robot": "🤖", "fusée": "🚀", "cadeau": "🎁", "bébé": "👶", "café": "☕", "nez": "👃", "pied": "🦶", "dé": "🎲", "rat": "🐀", "jus": "🧃", "hibou": "🦉", "bouche": "👄", "tomate": "🍅", "salade": "🥗", "ananas": "🍍", "livre": "📖", "bus": "🚌", "tulipe": "🌷", "lama": "🦙", "koala": "🐨", "soupe": "🍲", "glace": "🍦", "cochon": "🐷", "lapin": "🐰", "avion": "✈️", "vache": "🐄", "chameau": "🐫", "escargot": "🐌", "mouton": "🐑", "zèbre": "🦓", "école": "🏫", "orange": "🍊", "usine": "🏭", "soleil": "☀️", "nuage": "☁️", "gâteau": "🎂", "canard": "🦆", "sapin": "🎄", "clé": "🔑", "sucette": "🍭", "ballon": "🎈", "poisson": "🐟", "chaussure": "👟", "cerise": "🍒", "citron": "🍋", "fourmi": "🐜", "papillon": "🦋"}, "sons": {"a": {"oui": ["chat", "sac", "pizza", "banane", "cadeau", "café", "rat", "tomate", "salade", "ananas", "lama", "koala", "glace", "lapin", "avion", "vache", "chameau", "escargot", "nuage", "gâteau", "canard", "sapin", "ballon", "papillon"], "non": ["lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "kiwi", "tortue", "robot", "fusée", "bébé", "nez", "pied", "dé", "jus", "hibou", "bouche", "livre", "bus", "tulipe", "soupe", "cochon", "mouton", "zèbre", "école", "usine", "soleil", "clé", "sucette", "chaussure", "cerise", "citron", "fourmi"]}, "i": {"oui": ["lit", "souris", "pizza", "kiwi", "hibou", "livre", "tulipe", "usine", "cerise", "citron", "fourmi", "papillon"], "non": ["chat", "lune", "loup", "vélo", "moto", "poule", "pomme", "roue", "sac", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "dé", "rat", "jus", "bouche", "tomate", "salade", "ananas", "bus", "lama", "koala", "soupe", "glace", "cochon", "vache", "chameau", "escargot", "mouton", "zèbre", "école", "orange", "nuage", "gâteau", "canard", "clé", "sucette", "ballon", "poisson", "chaussure"]}, "o": {"oui": ["vélo", "moto", "pomme", "tortue", "robot", "cadeau", "tomate", "koala", "cochon", "chameau", "escargot", "école", "orange", "soleil", "gâteau", "chaussure"], "non": ["chat", "lune", "lit", "sac", "pizza", "banane", "fusée", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "salade", "ananas", "livre", "bus", "tulipe", "lama", "glace", "lapin", "vache", "zèbre", "usine", "nuage", "canard", "sapin", "clé", "sucette", "cerise"]}, "u": {"oui": ["lune", "tortue", "fusée", "jus", "bus", "tulipe", "usine", "nuage", "sucette", "chaussure"], "non": ["chat", "vélo", "moto", "lit", "pomme", "sac", "pizza", "banane", "robot", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "tomate", "salade", "ananas", "livre", "lama", "koala", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "zèbre", "école", "orange", "soleil", "gâteau", "canard", "sapin", "clé", "ballon", "cerise", "citron", "papillon"]}, "ou": {"oui": ["loup", "poule", "souris", "roue", "hibou", "bouche", "soupe", "mouton", "fourmi"], "non": ["chat", "vélo", "moto", "lit", "pomme", "sac", "pizza", "banane", "robot", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "tomate", "salade", "ananas", "livre", "lama", "koala", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "zèbre", "école", "orange", "soleil", "gâteau", "canard", "sapin", "clé", "ballon", "cerise", "citron", "papillon"]}, "é": {"oui": ["vélo", "fusée", "bébé", "café", "nez", "pied", "dé", "école", "clé"], "non": ["chat", "lune", "loup", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "tortue", "banane", "robot", "cadeau", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "cochon", "vache", "chameau", "mouton", "orange", "usine", "nuage", "gâteau", "canard", "ballon", "poisson", "chaussure", "citron", "fourmi"]}}};
+  var ENT = {"emoji": {"chat": "🐱", "lune": "🌙", "loup": "🐺", "vélo": "🚲", "moto": "🏍️", "lit": "🛏️", "poule": "🐔", "souris": "🐭", "pomme": "🍎", "roue": "🛞", "sac": "🎒", "pizza": "🍕", "kiwi": "🥝", "tortue": "🐢", "banane": "🍌", "robot": "🤖", "fusée": "🚀", "cadeau": "🎁", "bébé": "👶", "café": "☕", "nez": "👃", "pied": "🦶", "dé": "🎲", "rat": "🐀", "jus": "🧃", "hibou": "🦉", "bouche": "👄", "tomate": "🍅", "salade": "🥗", "ananas": "🍍", "livre": "📖", "bus": "🚌", "tulipe": "🌷", "lama": "🦙", "koala": "🐨", "soupe": "🍲", "glace": "🍦", "cochon": "🐷", "lapin": "🐰", "avion": "✈️", "vache": "🐄", "chameau": "🐫", "escargot": "🐌", "mouton": "🐑", "zèbre": "🦓", "école": "🏫", "orange": "🍊", "usine": "🏭", "soleil": "☀️", "nuage": "☁️", "gâteau": "🎂", "canard": "🦆", "sapin": "🎄", "clé": "🔑", "sucette": "🍭", "ballon": "🎈", "poisson": "🐟", "chaussure": "👟", "cerise": "🍒", "citron": "🍋", "fourmi": "🐜", "papillon": "🦋", "pingouin": "🐧", "dauphin": "🐬", "raisin": "🍇", "requin": "🦈", "train": "🚆", "main": "✋", "oiseau": "🐦", "voiture": "🚗", "chapeau": "👒", "chocolat": "🍫", "cheval": "🐴", "éléphant": "🐘", "dent": "🦷", "gant": "🧤", "dragon": "🐉", "panda": "🐼", "maman": "👩", "bonbon": "🍬", "ruban": "🎀", "étoile": "⭐", "poire": "🍐", "camion": "🚚", "lion": "🦁", "chien": "🐶", "roi": "🤴"}, "sons": {"a": {"oui": ["chat", "sac", "pizza", "banane", "cadeau", "café", "rat", "tomate", "salade", "ananas", "lama", "koala", "glace", "lapin", "avion", "vache", "chameau", "escargot", "nuage", "gâteau", "canard", "sapin", "ballon", "papillon", "chapeau", "chocolat", "cheval", "dragon", "panda", "maman", "camion"], "non": ["lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "kiwi", "tortue", "robot", "fusée", "bébé", "nez", "pied", "dé", "jus", "hibou", "bouche", "livre", "bus", "tulipe", "soupe", "cochon", "mouton", "zèbre", "école", "usine", "soleil", "clé", "sucette", "chaussure", "cerise", "citron", "fourmi", "pingouin", "dauphin", "raisin", "requin", "train", "main", "bonbon", "lion", "chien"]}, "i": {"oui": ["lit", "souris", "pizza", "kiwi", "hibou", "livre", "tulipe", "usine", "cerise", "citron", "fourmi", "papillon"], "non": ["chat", "lune", "loup", "vélo", "moto", "poule", "pomme", "roue", "sac", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "dé", "rat", "jus", "bouche", "tomate", "salade", "ananas", "bus", "lama", "koala", "soupe", "glace", "cochon", "vache", "chameau", "escargot", "mouton", "zèbre", "école", "orange", "nuage", "gâteau", "canard", "clé", "sucette", "ballon", "poisson", "chaussure", "oiseau", "voiture", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "ruban", "étoile", "poire", "roi"]}, "o": {"oui": ["vélo", "moto", "pomme", "tortue", "robot", "cadeau", "tomate", "koala", "cochon", "chameau", "escargot", "école", "orange", "soleil", "gâteau", "chaussure", "dauphin", "oiseau", "chapeau", "chocolat"], "non": ["chat", "lune", "lit", "sac", "pizza", "banane", "fusée", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "salade", "ananas", "livre", "bus", "tulipe", "lama", "glace", "lapin", "vache", "zèbre", "usine", "nuage", "canard", "sapin", "clé", "sucette", "cerise", "raisin", "requin", "train", "main", "cheval", "éléphant", "dent", "gant", "panda", "maman", "ruban", "chien"]}, "u": {"oui": ["lune", "tortue", "fusée", "jus", "bus", "tulipe", "usine", "nuage", "sucette", "chaussure", "voiture", "ruban"], "non": ["chat", "vélo", "moto", "lit", "pomme", "sac", "pizza", "banane", "robot", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "tomate", "salade", "ananas", "livre", "lama", "koala", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "zèbre", "école", "orange", "soleil", "gâteau", "canard", "sapin", "clé", "ballon", "cerise", "citron", "papillon", "dauphin", "raisin", "requin", "train", "main", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "camion", "lion", "chien"]}, "ou": {"oui": ["loup", "poule", "souris", "roue", "hibou", "bouche", "soupe", "mouton", "fourmi"], "non": ["chat", "vélo", "moto", "lit", "pomme", "sac", "pizza", "banane", "robot", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "tomate", "salade", "ananas", "livre", "lama", "koala", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "zèbre", "école", "orange", "soleil", "gâteau", "canard", "sapin", "clé", "ballon", "cerise", "citron", "papillon", "dauphin", "raisin", "requin", "train", "main", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "camion", "lion", "chien"]}, "é": {"oui": ["vélo", "fusée", "bébé", "café", "nez", "pied", "dé", "école", "clé", "éléphant", "étoile"], "non": ["chat", "lune", "loup", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "tortue", "banane", "robot", "cadeau", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "cochon", "vache", "chameau", "mouton", "orange", "usine", "nuage", "gâteau", "canard", "ballon", "poisson", "chaussure", "citron", "fourmi", "oiseau", "voiture", "chapeau", "chocolat", "dent", "gant", "dragon", "panda", "maman", "bonbon", "ruban", "poire", "roi"]}}, "sons2": {"on": {"oui": ["cochon", "avion", "mouton", "ballon", "poisson", "citron", "papillon", "dragon", "bonbon", "camion", "lion"], "non": ["chat", "lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "kiwi", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "lapin", "vache", "chameau", "escargot", "zèbre", "école", "orange", "usine", "soleil", "nuage", "gâteau", "canard", "sapin", "clé", "sucette", "chaussure", "cerise", "fourmi", "pingouin", "dauphin", "raisin", "requin", "train", "main", "oiseau", "voiture", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "panda", "maman", "ruban", "étoile", "poire", "chien", "roi"]}, "an": {"oui": ["orange", "éléphant", "dent", "gant", "panda", "maman", "ruban"], "non": ["chat", "lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "kiwi", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "mouton", "zèbre", "école", "usine", "soleil", "nuage", "gâteau", "canard", "sapin", "clé", "sucette", "ballon", "poisson", "chaussure", "cerise", "citron", "fourmi", "papillon", "pingouin", "dauphin", "raisin", "requin", "train", "main", "oiseau", "voiture", "chapeau", "chocolat", "cheval", "dragon", "bonbon", "étoile", "poire", "camion", "lion", "chien", "roi"]}, "in": {"oui": ["lapin", "sapin", "pingouin", "dauphin", "raisin", "requin", "train", "main", "chien"], "non": ["chat", "lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "kiwi", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "cochon", "avion", "vache", "chameau", "escargot", "mouton", "zèbre", "école", "orange", "usine", "soleil", "nuage", "gâteau", "canard", "clé", "sucette", "ballon", "poisson", "chaussure", "cerise", "citron", "fourmi", "papillon", "oiseau", "voiture", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "ruban", "étoile", "poire", "camion", "lion", "roi"]}, "oi": {"oui": ["poisson", "oiseau", "voiture", "étoile", "poire", "roi"], "non": ["chat", "lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "kiwi", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "jus", "hibou", "bouche", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "cochon", "lapin", "avion", "vache", "chameau", "escargot", "mouton", "zèbre", "école", "orange", "usine", "soleil", "nuage", "gâteau", "canard", "sapin", "clé", "sucette", "ballon", "chaussure", "cerise", "citron", "fourmi", "papillon", "pingouin", "dauphin", "raisin", "requin", "train", "main", "chapeau", "chocolat", "cheval", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "ruban", "camion", "lion", "chien"]}, "ch": {"oui": ["chat", "bouche", "cochon", "vache", "chameau", "chaussure", "chapeau", "chocolat", "cheval", "chien"], "non": ["lune", "loup", "vélo", "moto", "lit", "poule", "souris", "pomme", "roue", "sac", "pizza", "kiwi", "tortue", "banane", "robot", "fusée", "cadeau", "bébé", "café", "nez", "pied", "dé", "rat", "hibou", "tomate", "salade", "ananas", "livre", "bus", "tulipe", "lama", "koala", "soupe", "glace", "lapin", "avion", "escargot", "mouton", "zèbre", "école", "usine", "soleil", "gâteau", "canard", "sapin", "clé", "sucette", "ballon", "poisson", "cerise", "citron", "fourmi", "papillon", "pingouin", "dauphin", "raisin", "requin", "train", "main", "oiseau", "voiture", "éléphant", "dent", "gant", "dragon", "panda", "maman", "bonbon", "ruban", "étoile", "poire", "camion", "lion", "roi"]}}};
   var nQ=null, nLock=false, nErr=0;
   function nQuestion(){ return ['p_entends', 's_'+nQ.son, 'p_dans', 'w_'+nQ.mot]; }
   function newEntends(intro){
     nLock=false; nErr=0; dots('nDots', nDone);
     ['nYes','nNo'].forEach(function(id){ $(id).classList.remove('hintme','good'); });
-    var son = rnd(Object.keys(ENT.sons)), oui = Math.random() < 0.5;
-    var liste = ENT.sons[son][oui ? 'oui' : 'non'];
+    var SN = niveau() === 2 ? ENT.sons2 : ENT.sons;
+    var son = rnd(Object.keys(SN)), oui = Math.random() < 0.5;
+    var liste = SN[son][oui ? 'oui' : 'non'];
     var mot; do{ mot = rnd(liste); }while(nQ && mot === nQ.mot && liste.length > 1);
     nQ = {son:son, mot:mot, oui:oui};
     $('nSon').innerHTML = color(son); $('nEmo').textContent = ENT.emoji[mot];
@@ -784,7 +824,7 @@
 
   /* ---------- Jeu : le train des mots ----------
      L'enfant remplit les wagons en touchant les syllabes dans l'ordre. */
-  var TRAIN = MOTS.filter(function(m){ return m[0].indexOf('·') > 0; });
+  function trainL(){ return motsL().filter(function(m){ return m[0].indexOf('·') > 0; }); }
   var tWord=null, tSyl=[], tPos=0, tErr=0, tLock=false, tLast=null;
   function renderWagons(){
     var h = '<span class="loco">🚂</span>';
@@ -793,13 +833,14 @@
   }
   function newTrain(intro){
     tLock=false; tErr=0; tPos=0; dots('tDots', tDone);
-    var w; do{ w = rnd(TRAIN); }while(w === tLast); tLast = w; tWord = w;
+    var TL = trainL();
+    var w; do{ w = rnd(TL); }while(w === tLast); tLast = w; tWord = w;
     tSyl = w[0].split('·');
     $('tEmo').textContent = w[1];
     renderWagons();
     var cards = tSyl.slice(), nExtra = tSyl.length >= 3 ? 1 : 2;
     while(cards.length < tSyl.length + nExtra){
-      var d = rnd(CONS) + rnd(['a','i','o','u','é']);
+      var d = rnd(consL()) + rnd(voyJeu());
       if(cards.indexOf(d) < 0) cards.push(d);
     }
     var box = $('tChoices'); box.innerHTML = '';

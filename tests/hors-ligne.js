@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:800}});const p=await ctx.newPage();
+const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto((process.env.APP_URL||'http://localhost:8766/index.html'));
+await p.evaluate(()=>navigator.serviceWorker.ready);await p.waitForTimeout(1500);
+const cached=await p.evaluate(async()=>{const ks=await caches.keys();const c=await caches.open(ks[0]);return [ks, (await c.keys()).map(r=>new URL(r.url).pathname)];});
+console.log('cache:',JSON.stringify(cached));
+const man=await p.evaluate(async()=>{const r=await fetch(document.querySelector('link[rel=manifest]').href);return (await r.json()).name;});
+console.log('manifest:',man);
+await ctx.setOffline(true);
+await p.reload();await p.waitForTimeout(800);
+console.log('offline: title=',await p.title(),'| SONS:',await p.evaluate(()=>Object.keys(window.SONS||{}).length),'| who/home visible:',await p.evaluate(()=>[...document.querySelectorAll('.screen.on')].map(s=>s.id)));
+await p.click('#kids .kid.add');await p.waitForTimeout(200);
+console.log('errors',errs);await b.close();})();

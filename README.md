@@ -22,7 +22,13 @@ App web installable sur téléphone (icône sur l'écran d'accueil, plein écran
 | Le train | remplit les wagons avec les syllabes dans l'ordre (to·ma·te) |
 | Lis le mot | lit le mot qui va avec l'image |
 
-Profils : un par enfant (prénom + animal, étoiles séparées), gardés **uniquement sur l'appareil** (`localStorage`).
+Profils : un par enfant (prénom + animal, étoiles séparées, **niveau**), gardés **uniquement sur l'appareil** (`localStorage`).
+Le niveau se change dans « Pour les parents » (bouton « Niveau ⇄ » à côté de chaque enfant).
+
+| Niveau | Sons travaillés |
+|---|---|
+| 1 | voyelles a, e, i, o, u, é + consonnes ; mots simples (mo·to, vé·lo…) |
+| 2 | + **ch, ou, on, an, in, oi** ; mots comme mou·ton, la·pin, co·chon, é·toi·le |
 
 ## Voix
 
@@ -54,6 +60,19 @@ Clés : `p_*` / `c_*` phrases et consignes, `s_*` syllabes et sons, `w_*` mots, 
 `pool.py` calcule la phonétique de chaque mot, `classify.py` les classe par son (a, i, o, u, ou, é) et **écarte les cas
 ambigus** pour une débutante (sons nasals « an/on/in », « è » pour « é », « oi », paires u/ou, « ou » pour « o »).
 Résultat dans `entends.json`, recopié dans `index.html`.
+
+### Niveau 2
+
+`niveau2.py` vérifie que chaque syllabe (ex. « man ») est lue avec la prononciation attendue (/mɑ̃/) et choisit sinon
+une écriture qui se prononce pareil (« manc », « bain »…). `niveau2_mots.json` : mots à lire du niveau 2.
+
+## Tests
+
+```sh
+python3 -m http.server 8766 &          # à la racine du dépôt
+npm i playwright                       # une fois
+for t in tests/*.js; do node $t; done  # chaque test affiche « errors [] » si tout va bien
+```
 
 ## Mettre en ligne une nouvelle version
 

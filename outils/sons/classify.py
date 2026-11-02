@@ -13,10 +13,19 @@ RULES = {
  'ou': (lambda i: has(i,'u'),                    lambda i: 'w' in i or has(i,'y')),
  'é':  (lambda i: has(i,'e'),                    lambda i: 'ɛ' in i or 'ə' in i or 'j' in i),
 }
-out = {}
-for s,(yes,amb) in RULES.items():
+RULES2 = {
+ 'on': (lambda i: 'ɔ'+N in i, lambda i: False),
+ 'an': (lambda i: 'ɑ'+N in i, lambda i: False),
+ 'in': (lambda i: 'ɛ'+N in i, lambda i: False),
+ 'oi': (lambda i: 'wa' in i,  lambda i: False),
+ 'ch': (lambda i: 'ʃ' in i,   lambda i: 'ʒ' in i),   # « j » ressemble trop à « ch » pour une débutante
+}
+def classer(rules):
+  out = {}
+  for s,(yes,amb) in rules.items():
     Y=[w for w in pool if yes(ipa[w])]
     Nn=[w for w in pool if not yes(ipa[w]) and not amb(ipa[w])]
     out[s]={'oui':Y,'non':Nn}
-    print(f"{s:3} OUI({len(Y)}): {' '.join(Y)}\n    NON({len(Nn)}): {' '.join(Nn)}\n    écartés: {' '.join(w for w in pool if w not in Y and w not in Nn)}")
-json.dump({'emoji':pool,'sons':out}, open('entends.json','w'), ensure_ascii=False)
+    print(f"{s:3} OUI({len(Y)}): {' '.join(Y)}\n    NON({len(Nn)})\n    écartés: {' '.join(w for w in pool if w not in Y and w not in Nn)}")
+  return out
+json.dump({'emoji':pool,'sons':classer(RULES),'sons2':classer(RULES2)}, open('entends.json','w'), ensure_ascii=False)
