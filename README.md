@@ -3,7 +3,7 @@
 Jeux pour apprendre à lire en français (enfants de 4 à 7 ans) : lettres, sons, syllabes et mots.
 App web installable sur téléphone (icône sur l'écran d'accueil, plein écran, fonctionne sans internet).
 
-**Adresse :** https://yannick930424.github.io/apprendre-a-lire/
+**Adresse :** https://befret-project.github.io/apprendre-a-lire/
 
 ## Installer sur un téléphone
 
