@@ -1,6 +1,6 @@
 /* Service worker : l'app fonctionne sans internet.
    Changer VERSION à chaque mise en ligne pour que les téléphones récupèrent la nouvelle version. */
-const VERSION = 'lire-v2';
+const VERSION = 'lire-v3';
 const FICHIERS = [
   './', './index.html', './sons.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'

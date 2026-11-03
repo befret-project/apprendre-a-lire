@@ -149,6 +149,73 @@
   .yesno{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:6px}
   .yn{font-size:84px;padding:20px 0}
   .warn{background:#FFF0D6;border-radius:16px;padding:10px 14px;font-size:16px;margin-bottom:14px;display:none}
+
+  /* =========================================================
+     MISE EN PAGE ADAPTÉE (téléphone, tablette, ordinateur)
+     ========================================================= */
+  /* boutons d'aide et boutons parents : assez grands pour un doigt */
+  #mHelp, #tSay, #testVoice{min-height:48px}
+  .kadm{flex-wrap:wrap}
+  .kadm button{min-height:44px;font-size:16px;padding:6px 14px}
+  /* mots longs : la taille s'adapte à la largeur au lieu d'être coupée */
+  .choice.mot{font-size:clamp(28px, 9vw, 44px);padding:22px 6px;white-space:nowrap}
+  /* pêche : cible et bouton côte à côte = plus de place pour l'eau */
+  .show.inline{flex-direction:row;gap:22px;min-height:0}
+  .show.inline .say{margin-top:0}
+  .pond{height:clamp(260px, calc(100svh - var(--topgap) - 330px), 560px)}
+
+  /* ----- téléphones ----- */
+  @media (max-width:600px){
+    h2{font-size:24px;margin:0 0 10px}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:9px}
+    .grid .letter{height:72px;font-size:36px;border-radius:16px}
+    .row{gap:8px}
+    .row .letter{width:58px;height:58px;font-size:30px;border-radius:16px}
+    .rowlab{font-size:17px;margin:8px 0 4px}
+    #peche .show .big{font-size:58px}
+    #entends .show .big{font-size:64px}
+    #nEmo{font-size:70px !important}
+    .choice.yn{font-size:84px;padding:18px 0}
+    .choice{font-size:38px;padding:18px 8px}
+    .choices{gap:12px}
+    #train .wagon{min-width:62px;height:54px;font-size:28px}
+    #train .loco{font-size:40px}
+    #tEmo{font-size:64px !important}
+  }
+  /* très petits téléphones (iPhone SE…) */
+  @media (max-width:380px), (max-height:680px){
+    .show{padding:10px !important}
+    #letterShow{min-height:120px}
+    #letterShow .big{font-size:52px}
+    #letterShow .emo{font-size:42px}
+    #letterShow .word{font-size:24px}
+    #mEmo{font-size:68px !important}
+    #eSay{font-size:24px !important}
+  }
+
+  /* ----- tablettes et ordinateurs : plus large, plus grand, moins de vide ----- */
+  @media (min-width:900px){
+    main{max-width:1120px}
+    .kids{grid-template-columns:repeat(auto-fill,minmax(190px,220px));justify-content:center;gap:20px}
+    .kid{font-size:26px;padding:24px 10px}
+    .kid .av{font-size:84px}
+    .menu{grid-template-columns:repeat(4,1fr)}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(88px,1fr))}
+    /* je colle : chaque rangée tient sur une seule ligne */
+    .row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+    .row .letter{width:auto;height:78px}
+    .choice{font-size:52px;padding:28px 10px}
+    .choice.mot{font-size:46px}
+    .yesno{max-width:760px;margin-left:auto;margin-right:auto}
+    .choice.yn{font-size:110px}
+  }
+  /* écrans larges mais peu hauts (tablette ou PC en paysage) : on compacte le cadre du haut */
+  @media (min-width:900px) and (max-height:820px){
+    .show{min-height:0 !important;padding:12px 20px}
+    #letterShow{min-height:150px}
+    #mEmo{font-size:84px !important}
+    #tEmo{font-size:64px !important}
+  }
 </style>
 </head>
 <body class="at-home">
@@ -258,7 +325,7 @@
   <!-- PÊCHE -->
   <section class="screen" id="peche">
     <h2>La pêche aux lettres</h2>
-    <div class="show"><div class="big" id="pTarget">m</div><button class="say" id="pSay">🔊 Écoute</button></div>
+    <div class="show inline"><div class="big" id="pTarget">m</div><button class="say" id="pSay">🔊 Écoute</button></div>
     <div class="dots" id="pDots"></div>
     <div class="pond" id="pond"></div>
   </section>
@@ -713,7 +780,7 @@
     var box=$('mChoices'); box.innerHTML='';
     shuffle([t].concat(others)).forEach(function(m){
       var b=document.createElement('button');
-      b.className='choice'; b.style.fontSize='40px'; b.innerHTML=color(m[0]); b.dataset.w=m[0];
+      b.className='choice mot'; b.innerHTML=color(m[0]); b.dataset.w=m[0];
       tap(b, function(){
         if(mLock) return;
         if(m===mTarget){

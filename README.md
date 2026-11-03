@@ -72,6 +72,7 @@ une écriture qui se prononce pareil (« manc », « bain »…). `niveau2_mots.
 python3 -m http.server 8766 &          # à la racine du dépôt
 npm i playwright                       # une fois
 for t in tests/*.js; do node $t; done  # chaque test affiche « errors [] » si tout va bien
+node tests/affichage.js /tmp/captures      # captures des 10 écrans × 5 tailles + contrôles (débordement, boutons < 44 px, texte coupé)
 ```
 
 ## Mettre en ligne une nouvelle version
