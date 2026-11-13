@@ -216,11 +216,56 @@
     #mEmo{font-size:84px !important}
     #tEmo{font-size:64px !important}
   }
+
+  /* =========================================================
+     RUBRIQUES + JEUX DE LOGIQUE
+     ========================================================= */
+  .hub{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:760px;margin:0 auto}
+  .hubtile{padding:34px 10px;font-size:30px}
+  .hubtile .ico{font-size:76px}
+  .musbtn{font-size:30px;width:64px;height:64px;border-radius:22px;background:var(--card);box-shadow:0 4px 0 #0001;margin-left:auto;margin-right:12px}
+  .musbtn.off{opacity:.45}
+  body:not(.musique-ok) .musbtn{visibility:hidden}
+  .seq{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;font-size:clamp(30px,8.4vw,64px);line-height:1.15;margin-bottom:8px}
+  .seq .q{display:inline-flex;align-items:center;justify-content:center;width:1.25em;height:1.25em;border-radius:.3em;border:4px dashed var(--sun);font-size:.8em;color:var(--muted)}
+  .choices.pics .choice{font-size:clamp(50px,14vw,80px);padding:16px 6px;line-height:1.1}
+  .choices.grid4{grid-template-columns:repeat(2,1fr)}
+  @media (min-width:700px){ .choices.grid4{grid-template-columns:repeat(4,1fr)} }
+  .mem{display:grid;gap:12px;margin:0 auto;max-width:620px}
+  .card{min-width:0;padding:0;aspect-ratio:1;border-radius:20px;font-size:clamp(36px,10vw,72px);background:linear-gradient(135deg,#C3A6FF,#8EC5FF);box-shadow:0 5px 0 #0002;
+        display:flex;align-items:center;justify-content:center;transition:transform .25s;overflow:hidden}
+  .card.up,.card.done{background:var(--card);color:inherit;transform:rotateY(0)}
+  .card.done{opacity:.55;pointer-events:none}
+  .card:not(.up):not(.done)::after{content:'❓';font-size:.55em;opacity:.6;color:#fff}
+  .sudo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;max-width:min(440px, calc(100svh - var(--topgap) - 330px));min-width:220px;margin:0 auto;border:5px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--ink)}
+  .cell{min-width:0;padding:0;aspect-ratio:1;background:var(--card);font-size:clamp(34px,10vw,58px);display:flex;align-items:center;justify-content:center;border:1px solid #DDD5E8;border-radius:0}
+  .cell.fixed{background:#F3EEE6}
+  .cell.sel{background:#FFF1C9;box-shadow:inset 0 0 0 4px var(--sun)}
+  .cell.c1{border-right:4px solid var(--ink)} .cell.r1{border-bottom:4px solid var(--ink)}
+  .cell.bad{animation:shake .4s}
+  .palette{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:440px;margin:14px auto 0}
+  .palette .choice{font-size:clamp(40px,11vw,60px);padding:12px 0}
+  /* écran en paysage assez large : les images à côté de la grille */
+  @media (orientation:landscape) and (min-width:700px){
+    .sudowrap{display:flex;align-items:center;justify-content:center;gap:26px}
+    .sudowrap .sudo{margin:0;width:min(440px, calc(100svh - var(--topgap) - 300px));max-width:none;flex:none}
+    .sudowrap .palette{grid-template-columns:1fr;margin:0;width:100px;gap:10px}
+    .sudowrap .palette .choice{font-size:44px;padding:8px 0}
+  }
+  /* écrans peu hauts (iPhone SE…) : la consigne écrite du sudoku est retirée (la voix la dit), grille + images tiennent à l'écran */
+  @media (max-height:700px){
+    #sudoku .show{display:none}
+    #sudoku h2{margin-bottom:6px}
+    .sudo{max-width:min(440px, calc(100svh - var(--topgap) - 260px))}
+    .palette{margin-top:10px}
+    .palette .choice{font-size:38px;padding:8px 0}
+  }
 </style>
 </head>
 <body class="at-home">
 <nav class="bar">
   <button class="home-btn" id="homeBtn" aria-label="Accueil">🏠</button>
+  <button class="musbtn" id="musBtn" aria-label="Musique">🎵</button>
   <button class="stars" id="stars" aria-label="Changer de joueur">⭐ 0</button>
 </nav>
 
@@ -246,10 +291,10 @@
     </div>
   </section>
 
-  <!-- ACCUEIL -->
-  <section class="screen on" id="home">
-    <h1>J'apprends <span class="v">à</span> lire !</h1>
-    <p class="sub">Choisis un jeu <span id="nivInfo" style="display:block;font-size:15px;margin-top:2px"></span></p>
+  <!-- LIRE -->
+  <section class="screen" id="lire">
+    <h1>📖 Lire</h1>
+    <p class="sub">Choisis un jeu</p>
     <div class="menu">
       <button class="tile" style="background:var(--pink)" data-go="lettres"><span class="ico">🔤</span>Les lettres<small>Touche et écoute</small></button>
       <button class="tile" style="background:var(--teal)" data-go="peche"><span class="ico">🎣</span>La pêche<small>Attrape les lettres</small></button>
@@ -258,6 +303,62 @@
       <button class="tile" style="background:var(--mint)" data-go="ecoute"><span class="ico">👂</span>Écoute et trouve<small>Quelle syllabe ?</small></button>
       <button class="tile" style="background:var(--lemon)" data-go="train"><span class="ico">🚂</span>Le train<small>Construis le mot</small></button>
       <button class="tile" style="background:var(--lav)" data-go="mots"><span class="ico">🖼️</span>Lis le mot<small>Quel mot va avec l'image ?</small></button>
+    </div>
+  </section>
+
+  <!-- LOGIQUE -->
+  <section class="screen" id="logique">
+    <h1>🧠 Logique</h1>
+    <p class="sub">Choisis un jeu</p>
+    <div class="menu">
+      <button class="tile" style="background:var(--pink)" data-go="suite"><span class="ico">🔁</span>La suite<small>Qu'est-ce qui vient après ?</small></button>
+      <button class="tile" style="background:var(--peach)" data-go="intrus"><span class="ico">🕵️</span>L'intrus<small>Qui n'est pas de la famille ?</small></button>
+      <button class="tile" style="background:var(--lemon)" data-go="memory"><span class="ico">🃏</span>Memory<small>Trouve les paires</small></button>
+      <button class="tile" style="background:var(--lav)" data-go="sudoku"><span class="ico">🔢</span>Sudoku<small>Une image de chaque</small></button>
+    </div>
+  </section>
+
+  <!-- SUITE -->
+  <section class="screen" id="suite">
+    <h2>La suite</h2>
+    <div class="show"><div class="seq" id="qSeq"></div><button class="say" id="qSay">🔊 Écoute</button></div>
+    <div class="dots" id="qDots"></div>
+    <div class="choices pics" id="qChoices"></div>
+  </section>
+
+  <!-- INTRUS -->
+  <section class="screen" id="intrus">
+    <h2>L'intrus</h2>
+    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:20px">Qui n'est pas de la même famille&nbsp;?</div><button class="say" id="iSay">🔊</button></div>
+    <div class="dots" id="iDots"></div>
+    <div class="choices pics grid4" id="iChoices"></div>
+  </section>
+
+  <!-- MEMORY -->
+  <section class="screen" id="memory">
+    <h2>Memory</h2>
+    <div class="dots" id="yDots"></div>
+    <div class="mem" id="yBoard"></div>
+  </section>
+
+  <!-- SUDOKU -->
+  <section class="screen" id="sudoku">
+    <h2>Sudoku</h2>
+    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:18px">Une image de chaque dans chaque ligne et chaque colonne</div><button class="say" id="kSay">🔊</button></div>
+    <div class="dots" id="kDots"></div>
+    <div class="sudowrap">
+      <div class="sudo" id="kGrid"></div>
+      <div class="palette" id="kPal"></div>
+    </div>
+  </section>
+
+  <!-- ACCUEIL -->
+  <section class="screen on" id="home">
+    <h1>J'apprends <span class="v">à</span> lire !</h1>
+ <p class="sub">Que veux-tu faire ? <span id="nivInfo" style="display:block;font-size:15px;margin-top:2px"></span></p>
+    <div class="hub">
+      <button class="tile hubtile" style="background:var(--sky)" data-go="lire"><span class="ico">📖</span>Lire<small>Lettres, sons, mots</small></button>
+      <button class="tile hubtile" style="background:var(--mint)" data-go="logique"><span class="ico">🧠</span>Logique<small>Suites, intrus, memory, sudoku</small></button>
     </div>
     <div class="parents">
       <b>Pour les parents :</b> les jeux sont rangés du plus facile au plus difficile, <b>10 minutes par jour</b> suffisent, toujours à côté de l'enfant.
@@ -381,7 +482,7 @@
      Choix automatique, modifiable par le parent (mémorisé sur l'appareil).
      ========================================================= */
   var SONS = window.SONS || {};
-  var TEXTES = {"p_test": "Bonjour ! On va apprendre à lire ensemble.", "c_lettres": "Touche une lettre, et écoute !", "c_syllabes": "Touche une lettre bleue, puis une lettre rouge !", "c_mots": "Regarde l'image. Quel mot va avec ?", "p_ecoute": "Écoute bien.", "p_bravo": "Bravo !", "p_presque": "Presque ! Écoute encore.", "p_regarde": "Regarde, c'est celui-là !", "p_cacest": "Ça, c'est", "p_essaie": "Essaie encore !", "p_clignote": "Regarde, c'est celui qui clignote !", "p_trophee": "Bravo ! Tu as gagné plein d'étoiles !", "p_fin": "Bravo ! Tu as fini ! On rejoue, ou on rentre à la maison ?", "c_train": "Construis le mot ! Touche les syllabes dans le bon ordre.", "c_entends": "Écoute bien, et réponds avec ton pouce !", "p_entends": "Est-ce que tu entends", "p_dans": "dans", "p_oui": "Oui ! On l'entend !", "p_non": "Bravo ! On ne l'entend pas.", "c_peche": "Attrape toutes les lettres comme celle-ci !"};
+  var TEXTES = {"c_suite": "Qu'est-ce qui vient après ? Trouve la bonne image !", "c_intrus": "Trouve celui qui n'est pas de la même famille !", "c_memory": "Retourne deux cartes, et trouve les paires !", "c_sudoku": "Dans chaque ligne et chaque colonne, il faut une image de chaque. Choisis la bonne image !", "p_test": "Bonjour ! On va apprendre à lire ensemble.", "c_lettres": "Touche une lettre, et écoute !", "c_syllabes": "Touche une lettre bleue, puis une lettre rouge !", "c_mots": "Regarde l'image. Quel mot va avec ?", "p_ecoute": "Écoute bien.", "p_bravo": "Bravo !", "p_presque": "Presque ! Écoute encore.", "p_regarde": "Regarde, c'est celui-là !", "p_cacest": "Ça, c'est", "p_essaie": "Essaie encore !", "p_clignote": "Regarde, c'est celui qui clignote !", "p_trophee": "Bravo ! Tu as gagné plein d'étoiles !", "p_fin": "Bravo ! Tu as fini ! On rejoue, ou on rentre à la maison ?", "c_train": "Construis le mot ! Touche les syllabes dans le bon ordre.", "c_entends": "Écoute bien, et réponds avec ton pouce !", "p_entends": "Est-ce que tu entends", "p_dans": "dans", "p_oui": "Oui ! On l'entend !", "p_non": "Bravo ! On ne l'entend pas.", "c_peche": "Attrape toutes les lettres comme celle-ci !"};
   var PRON = {"ma": "ma", "pa": "pas", "la": "la", "ra": "rat", "sa": "sa", "ta": "ta", "va": "va", "fa": "fa", "na": "na", "da": "da", "ba": "bas", "me": "me", "pe": "peu", "le": "le", "re": "reu", "se": "ce", "te": "te", "ve": "veut", "fe": "feu", "ne": "ne", "de": "de", "be": "bœufs", "mi": "mie", "pi": "pie", "li": "lit", "ri": "riz", "si": "si", "ti": "ti", "vi": "vie", "fi": "fi", "ni": "nid", "di": "dit", "bi": "bi", "mo": "mot", "po": "pot", "lo": "lot", "ro": "rot", "so": "seau", "to": "tôt", "vo": "veau", "fo": "faux", "no": "nos", "do": "dos", "bo": "beau", "mu": "mue", "pu": "pu", "lu": "lu", "ru": "rue", "su": "su", "tu": "tu", "vu": "vu", "fu": "fut", "nu": "nu", "du": "du", "bu": "bu", "mé": "mé", "pé": "pé", "lé": "lé", "ré": "ré", "sé": "sé", "té": "thé", "vé": "vé", "fé": "fée", "né": "nez", "dé": "dé", "bé": "bé", "a": "a", "e": "eux", "i": "i", "o": "eau", "u": "u", "é": "et", "ou": "ou", "mou": "mou", "ga": "gars", "ca": "cas", "ki": "qui", "zè": "zè", "wi": "oui", "tor": "tort", "tue": "tu", "vre": "vreu", "tom": "tom"};
   function texte(k){
     if(TEXTES[k]) return TEXTES[k];
@@ -424,7 +525,7 @@
   function done(my, delay){ clearTimeout(safety); if(my !== tok) return; gapTimer = setTimeout(function(){ if(my === tok) next(); }, delay); }
   function next(){
     clearTimeout(safety);
-    if(!queue.length){ var f = qEnd; qEnd = null; if(f) f(); return; }
+    if(!queue.length){ try{ Music.duck(false); }catch(e){} var f = qEnd; qEnd = null; if(f) f(); return; }
     var k = queue.shift(), my = tok;
     var useVoice = mode() === 'device' && k.indexOf('x_') !== 0 && texte(k);
     if(useVoice){
@@ -444,7 +545,7 @@
   }
   // joue une suite de sons (ex. « Bravo ! » puis « mo »), puis appelle onend
   function play(keys, onend){
-    stopAudio();
+    stopAudio(); try{ Music.duck(true); }catch(e){}
     queue = keys.slice();
     qEnd = onend || null;
     next();
@@ -510,7 +611,7 @@
 
   /* ---------- Parties de 5 : points de progression + écran de fin (rejouer / accueil) ---------- */
   var ROUND = 5, endGame = null;
-  function dots(id, n){ var h=''; for(var i=0;i<ROUND;i++) h+='<span'+(i<n?' class="on"':'')+'></span>'; $(id).innerHTML=h; }
+  function dots(id, n, total){ var h=''; for(var i=0;i<(total||ROUND);i++) h+='<span'+(i<n?' class="on"':'')+'></span>'; $(id).innerHTML=h; }
   function showEnd(game){
     endGame = game;
     var prizes=['🏆','🦄','🚀','👑','🌈','🎁'];
@@ -542,8 +643,16 @@
     syllabes: 'Touche une lettre bleue, puis une lettre rouge !',
     mots:     'Regarde l\'image. Quel mot va avec ?'
   };
+  var LOGIQUE = ['logique','suite','intrus','memory','sudoku'];
+  var PARENT = {lire:'home', logique:'home', lettres:'lire', peche:'lire', entends:'lire', syllabes:'lire', ecoute:'lire', train:'lire', mots:'lire',
+                suite:'logique', intrus:'logique', memory:'logique', sudoku:'logique'};
+  var screenNow = 'home';
   function go(id, silent){
-    stopAudio(); closeEnd(); closeBravo();
+    stopAudio(); closeEnd(); closeBravo(); screenNow = id;
+    // musique seulement dans la rubrique Logique (elle gênerait l'écoute des sons dans les jeux de lecture)
+    var logi = LOGIQUE.indexOf(id) >= 0;
+    document.body.classList.toggle('musique-ok', logi);
+    if(logi) Music.start(); else Music.stop();
     document.body.classList.toggle('at-home', id==='home' || id==='who');
     if(id==='home') renderKidAdmin();
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('on', s.id===id); });
@@ -555,10 +664,15 @@
     else if(id==='train'){ tDone=0; newTrain(true); }
     else if(CONSIGNES[id]){ if(id==='lettres') buildLetters(); if(id==='syllabes') setupSyl(); play(['c_'+id]); }
     else if(id==='who'){ renderKids(); if(!silent) play([kids.length ? 'p_quijoue' : 'p_ajoute']); }
+    else if(id==='suite'){ qDone=0; newSuite(true); }
+    else if(id==='intrus'){ iDone=0; newIntrus(true); }
+    else if(id==='memory'){ yDone=0; newMemory(true); }
+    else if(id==='sudoku'){ kDone=0; newSudoku(true); }
   }
   document.querySelectorAll('[data-go]').forEach(function(b){ tap(b, function(){ go(b.dataset.go); }, 500); });
-  tap($('homeBtn'), function(){ go('home'); }, 500);
-  tap($('endHome'), function(){ go('home'); }, 500);
+  tap($('homeBtn'), function(){ go(PARENT[screenNow] || 'home'); }, 500);
+  tap($('endHome'), function(){ go(PARENT[endGame] || 'home'); }, 500);
+  tap($('musBtn'), function(){ Music.toggle(); }, 300);
   tap($('endAgain'), function(){ go(endGame || 'home'); }, 500);
   tap($('testVoice'), function(){ play(['p_test', 's_mo', 's_fu', 's_i']); });
   try{ $('modeSel').value = store('lire_mode') || 'auto'; }catch(e){}
@@ -942,6 +1056,247 @@
     play((intro ? ['c_train'] : []).concat(['w_'+plain(w[0])]));
   }
   tap($('tSay'), function(){ if(tWord && !tLock) play(['w_'+plain(tWord[0])]); });
+
+  /* =========================================================
+     MUSIQUE : mélodie originale générée par l'app (Web Audio), aucun fichier
+     ========================================================= */
+  var Music = (function(){
+    var ctx = null, master = null, timer = null, step = 0, nextT = 0, ducked = false;
+    var enabled = store('lire_musique') !== '0';
+    var BASE = 0.07;
+    // do majeur pentatonique, 32 croches ; 0 = silence
+    var MEL = [76,79,81,79, 76,74,72,74, 76,79,81,84, 81,79,76,0,  74,76,79,76, 74,72,69,72, 74,76,79,74, 72,0,72,0];
+    var BASS = [48,48,45,45, 41,41,43,43];   // do, la, fa, sol (2 temps chacun)
+    function hz(m){ return 440 * Math.pow(2, (m-69)/12); }
+    function note(m, t, dur, type, vol){
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.value = hz(m);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+0.02); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t+dur+0.05);
+    }
+    function sched(){
+      var spb = 0.28;   // durée d'une croche (≈ 107 noires/min)
+      while(nextT < ctx.currentTime + 0.25){
+        var m = MEL[step % MEL.length];
+        if(m) note(m, nextT, spb*1.6, 'triangle', 0.5);
+        if(step % 4 === 0) note(BASS[(step/4) % BASS.length], nextT, spb*3.6, 'sine', 0.55);
+        nextT += spb; step++;
+      }
+    }
+    function ensure(){
+      if(ctx) return true;
+      try{
+        var AC = window.AudioContext || window.webkitAudioContext; if(!AC) return false;
+        ctx = new AC(); master = ctx.createGain(); master.gain.value = BASE; master.connect(ctx.destination);
+        return true;
+      }catch(e){ return false; }
+    }
+    function render(){ var b = $('musBtn'); if(b){ b.textContent = enabled ? '🎵' : '🔇'; b.classList.toggle('off', !enabled); } }
+    function start(){
+      render();
+      if(!enabled || !ensure()) return;
+      try{ if(ctx.state === 'suspended') ctx.resume(); }catch(e){}
+      if(timer) return;
+      nextT = ctx.currentTime + 0.1; timer = setInterval(sched, 60);
+    }
+    function stop(){ if(timer){ clearInterval(timer); timer = null; } }
+    function duck(on){
+      if(!ctx || on === ducked) return; ducked = on;
+      try{ master.gain.setTargetAtTime(on ? BASE*0.2 : BASE, ctx.currentTime, 0.08); }catch(e){}
+    }
+    function toggle(){ enabled = !enabled; store('lire_musique', enabled ? '1' : '0'); if(enabled) start(); else stop(); render(); }
+    return { start:start, stop:stop, duck:duck, toggle:toggle };
+  })();
+
+  /* =========================================================
+     JEUX DE LOGIQUE
+     ========================================================= */
+  var THEMES = [['🍎','🍌','🍇','🍓','🍊','🍐'], ['🐶','🐱','🐰','🐸','🐷','🐵'], ['🔴','🔵','🟢','🟡','🟣','🟠'],
+                ['🚗','🚌','🚲','🚂','✈️','🚀'], ['☀️','🌙','⭐','☁️','🌈','❄️']];
+  var qDone=0, iDone=0, yDone=0, kDone=0;
+
+  // bonne réponse / erreur, communs aux jeux de logique
+  function logiOk(screen, done, total, next, extra){
+    addStar(); dots(screen.dotsId, done, total);
+    play(['x_pop','p_bravo'], function(){
+      if(!isOn(screen.id)) return;
+      if(done >= total) showEnd(screen.id); else setTimeout(function(){ if(isOn(screen.id)) next(false); }, 450);
+    });
+  }
+
+  /* ---------- La suite : motif qui se répète, trouver l'élément manquant ---------- */
+  var qLock=false, qErr=0, qAns=null;
+  function newSuite(intro){
+    qLock=false; qErr=0; dots('qDots', qDone);
+    var N2 = niveau() === 2;
+    var unit = rnd(N2 ? ['ABC','AABB','ABCB','AABC','ABB'] : ['AB','AB','AAB','ABB']);
+    var th = shuffle(rnd(THEMES));
+    var map = {A:th[0], B:th[1], C:th[2]};
+    var len = Math.max(unit.length*2 + 1, N2 ? 8 : 6);
+    if(len > 9) len = 9;
+    var seq = []; for(var i=0;i<len;i++) seq.push(map[unit[i % unit.length]]);
+    // niveau 1 : on cherche le suivant (la dernière case) ; niveau 2 : une case au hasard
+    var miss = N2 ? Math.floor(Math.random()*len) : len-1;
+    qAns = seq[miss];
+    $('qSeq').innerHTML = seq.map(function(e,i){ return i===miss ? '<span class="q">❓</span>' : '<span>'+e+'</span>'; }).join('');
+    var used = Object.keys(map).filter(function(k){ return unit.indexOf(k)>=0; }).map(function(k){ return map[k]; });
+    var opts = [qAns];
+    shuffle(used.concat(th.slice(3))).forEach(function(e){ if(opts.length<3 && opts.indexOf(e)<0) opts.push(e); });
+    var box = $('qChoices'); box.innerHTML = '';
+    shuffle(opts).forEach(function(e){
+      var b = document.createElement('button'); b.className='choice'; b.textContent=e; b.dataset.e=e;
+      tap(b, function(){
+        if(qLock) return;
+        if(e === qAns){
+          qLock=true; b.classList.add('good');
+          var q = $('qSeq').querySelector('.q'); if(q){ q.className=''; q.textContent=e; q.style.animation='tap .3s'; }
+          qDone++; logiOk({id:'suite', dotsId:'qDots'}, qDone, ROUND, newSuite);
+        } else {
+          qErr++; b.classList.add('gone');
+          if(qErr>=2) box.querySelectorAll('.choice').forEach(function(x){ if(x.dataset.e===qAns) x.classList.add('hintme'); });
+          play(['x_boing','p_essaie']);
+        }
+      });
+      box.appendChild(b);
+    });
+    if(intro) play(['c_suite']);
+  }
+  tap($('qSay'), function(){ if(!qLock) play(['c_suite']); });
+
+  /* ---------- L'intrus : 3 de la même famille + 1 d'une autre ---------- */
+  var FAM1 = { fruits:['🍎','🍌','🍇','🍓','🍒','🍐','🍊'], animaux:['🐶','🐱','🐰','🐸','🐷','🐮','🦁','🐵'],
+               vehicules:['🚗','🚌','🚲','🚂','✈️','🚁','🚜'], habits:['👕','👖','👗','🧦','🧢','🧤','👟'],
+               musique:['🎸','🎹','🥁','🎺','🎻'], ciel:['☀️','🌙','⭐','☁️','🌈'] };
+  // niveau 2 : familles plus fines (animaux qui volent / de la mer / de la terre) — aucun animal ne va dans deux familles
+  var FAM2 = { volent:['🐦','🦋','🐝','🦅','🦉'], mer:['🐟','🐬','🐙','🐳','🐠','🦈'], terre:['🐶','🐱','🐰','🐷','🐮','🐘','🦒'] };
+  var iLock=false, iErr=0, iAns=null;
+  function newIntrus(intro){
+    iLock=false; iErr=0; dots('iDots', iDone);
+    var F = (niveau() === 2 && Math.random() < 0.7) ? FAM2 : FAM1;
+    var fams = shuffle(Object.keys(F)), A = shuffle(F[fams[0]]).slice(0,3), B = rnd(F[fams[1]]);
+    iAns = B;
+    var box = $('iChoices'); box.innerHTML='';
+    shuffle(A.concat([B])).forEach(function(e){
+      var b = document.createElement('button'); b.className='choice'; b.textContent=e; b.dataset.e=e;
+      tap(b, function(){
+        if(iLock) return;
+        if(e === iAns){ iLock=true; b.classList.add('good'); iDone++; logiOk({id:'intrus', dotsId:'iDots'}, iDone, ROUND, newIntrus); }
+        else {
+          iErr++; b.classList.add('gone');
+          if(iErr>=2) box.querySelectorAll('.choice').forEach(function(x){ if(x.dataset.e===iAns) x.classList.add('hintme'); });
+          play(['x_boing','p_essaie']);
+        }
+      });
+      box.appendChild(b);
+    });
+    if(intro) play(['c_intrus']);
+  }
+  tap($('iSay'), function(){ if(!iLock) play(['c_intrus']); });
+
+  /* ---------- Memory : retrouver les paires ---------- */
+  var MROUND = 3, yFirst=null, yLock=false, yPairs=0, yNeed=0;
+  function newMemory(intro){
+    yFirst=null; yLock=false; yPairs=0; dots('yDots', yDone, MROUND);
+    var N2 = niveau() === 2; yNeed = N2 ? 6 : 3;
+    var pics = shuffle(rnd(THEMES)).slice(0, yNeed);
+    if(N2) pics = shuffle(THEMES[0].concat(THEMES[1])).slice(0, yNeed);
+    var deck = shuffle(pics.concat(pics));
+    var board = $('yBoard'); board.innerHTML='';
+    board.style.gridTemplateColumns = 'repeat(' + (N2 ? 4 : 3) + ',minmax(0,1fr))';
+    board.style.maxWidth = N2 ? '620px' : '480px';
+    deck.forEach(function(e){
+      // l'image n'est mise dans la carte qu'une fois retournée (rien à deviner à travers une carte cachée)
+      var c = document.createElement('button'); c.className='card'; c.dataset.e=e;
+      tap(c, function(){
+        if(yLock || c.classList.contains('up') || c.classList.contains('done')) return;
+        c.classList.add('up'); c.textContent = e;
+        if(!yFirst){ yFirst = c; return; }
+        var a = yFirst; yFirst = null;
+        if(a.dataset.e === c.dataset.e){
+          yPairs++; setTimeout(function(){ a.classList.add('done'); c.classList.add('done'); }, 350);
+          if(yPairs === yNeed){ yLock=true; yDone++; setTimeout(function(){ logiOk({id:'memory', dotsId:'yDots'}, yDone, MROUND, newMemory); }, 400); }
+          else play(['x_pop']);
+        } else {
+          yLock = true;
+          setTimeout(function(){ a.classList.remove('up'); c.classList.remove('up'); a.textContent=''; c.textContent=''; yLock=false; }, 950);
+        }
+      }, 150);
+      board.appendChild(c);
+    });
+    if(intro) play(['c_memory']);
+  }
+
+  /* ---------- Mini-sudoku 4×4 : chaque ligne, colonne et carré 2×2 a une image de chaque ----------
+     Chaque grille est vérifiée : une seule solution possible, sinon une bonne réponse pourrait être refusée. */
+  var KROUND = 3, kSol=null, kGridV=null, kSel=-1, kErr=0, kLock=false, kSyms=null;
+  function sudoSolutions(g, limit){
+    var n = 0;
+    function ok(i, v){
+      var r = Math.floor(i/4), c = i%4, br = r - r%2, bc = c - c%2;
+      for(var k=0;k<4;k++){ if(g[r*4+k]===v || g[k*4+c]===v) return false; }
+      for(var y=br;y<br+2;y++) for(var x=bc;x<bc+2;x++) if(g[y*4+x]===v) return false;
+      return true;
+    }
+    (function rec(){
+      if(n >= limit) return;
+      var i = g.indexOf(-1); if(i < 0){ n++; return; }
+      for(var v=0; v<4; v++){ if(ok(i, v)){ g[i]=v; rec(); g[i]=-1; if(n>=limit) return; } }
+    })();
+    return n;
+  }
+  function makeSudoku(blanks){
+    var base = [0,1,2,3, 2,3,0,1, 1,0,3,2, 3,2,1,0];
+    var perm = shuffle([0,1,2,3]);
+    var rows = shuffle([[0,1],[2,3]]).map(function(b){ return shuffle(b); }).reduce(function(a,b){ return a.concat(b); });
+    var cols = shuffle([[0,1],[2,3]]).map(function(b){ return shuffle(b); }).reduce(function(a,b){ return a.concat(b); });
+    var tr = Math.random() < 0.5, sol = [];
+    for(var r=0;r<4;r++) for(var c=0;c<4;c++){ var rr=rows[r], cc=cols[c]; sol.push(perm[tr ? base[cc*4+rr] : base[rr*4+cc]]); }
+    var g = sol.slice(), order = shuffle([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]), removed = 0;
+    for(var k=0; k<order.length && removed<blanks; k++){
+      var i = order[k], keep = g[i]; g[i] = -1;
+      if(sudoSolutions(g.slice(), 2) === 1) removed++; else g[i] = keep;
+    }
+    return {sol: sol, grid: g};
+  }
+  function renderSudoku(){
+    var box = $('kGrid'); box.innerHTML='';
+    kGridV.forEach(function(v, i){
+      var b = document.createElement('button');
+      b.className = 'cell' + (v>=0 ? ' fixed' : '') + (i===kSel ? ' sel' : '') + (i%4===1 ? ' c1' : '') + (Math.floor(i/4)===1 ? ' r1' : '');
+      b.textContent = v>=0 ? kSyms[v] : '';
+      if(v < 0) tap(b, function(){ kSel = i; kErr = 0; renderSudoku(); renderPalette(); }, 150);
+      box.appendChild(b);
+    });
+  }
+  function renderPalette(){
+    var pal = $('kPal'); pal.innerHTML='';
+    kSyms.forEach(function(e, v){
+      var b = document.createElement('button'); b.className='choice' + (kErr>=2 && kSel>=0 && kSol[kSel]===v ? ' hintme' : ''); b.textContent=e;
+      tap(b, function(){
+        if(kLock || kSel < 0) return;
+        if(kSol[kSel] === v){
+          kGridV[kSel] = v; kErr = 0;
+          kSel = kGridV.indexOf(-1);
+          if(kSel < 0){ kLock = true; renderSudoku(); renderPalette(); kDone++; logiOk({id:'sudoku', dotsId:'kDots'}, kDone, KROUND, newSudoku); return; }
+          play(['x_pop']); renderSudoku(); renderPalette();
+        } else {
+          kErr++; play(['x_boing']);
+          var cell = $('kGrid').children[kSel]; if(cell){ cell.classList.remove('bad'); void cell.offsetWidth; cell.classList.add('bad'); }
+          if(kErr >= 2) renderPalette();
+        }
+      }, 250);
+      pal.appendChild(b);
+    });
+  }
+  function newSudoku(intro){
+    kLock=false; kErr=0; dots('kDots', kDone, KROUND);
+    var z = makeSudoku(niveau() === 2 ? 8 : 4);
+    kSol = z.sol; kGridV = z.grid; kSel = kGridV.indexOf(-1);
+    kSyms = shuffle(rnd([THEMES[0], THEMES[1], THEMES[2]])).slice(0,4);
+    renderSudoku(); renderPalette();
+    if(intro) play(['c_sudoku']);
+  }
+  tap($('kSay'), function(){ if(!kLock) play(['c_sudoku']); });
 
   /* ---------- Démarrage : choisir l'enfant ---------- */
   if(kids.length === 1 && !cur()){ active = kids[0].id; store('lire_actif', active); stars = kids[0].stars; }

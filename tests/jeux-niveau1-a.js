@@ -9,14 +9,14 @@ const missing=await p.evaluate(()=>{const need=[];const C='mplrstvfndb'.split(''
  ['c_lettres','c_syllabes','c_mots','p_test','p_ecoute','p_bravo','p_presque','p_regarde','p_cacest','p_essaie','p_clignote','p_trophee','p_fin'].forEach(k=>need.push(k));return need.filter(k=>!window.SONS[k]);});
 console.log('missing base keys:',missing);
 await p.click('#testVoice');await W(200);
-await p.click('[data-go=lettres]');await W(300);
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('lettres');await W(300);
 for(let i=0;i<24;i++){await p.evaluate(i=>document.querySelectorAll("#letterGrid .letter")[i].click(),i);await W(380);}
 await p.click('#homeBtn');await W(300);
-await p.click('[data-go=mots]');await W(300);
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('mots');await W(300);
 async function playRound(sel){ for(let i=0;i<5;i++){ for(const c of await p.$$(sel)){ const cls=await c.getAttribute('class'); if(cls.includes('gone'))continue; await c.click({force:true});await W(400); if((await c.getAttribute('class')).includes('good'))break;} await W(1500);} }
 await playRound('#mChoices .choice');
 console.log('mots end:',await p.$eval('#bravo',e=>e.className));
-await p.click('#endHome');await W(300);await p.click('[data-go=ecoute]');await W(300);
+await p.click('#endHome');await W(300);await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('ecoute');await W(300);
 await playRound('#eChoices .choice');
 console.log('ecoute end:',await p.$eval('#bravo',e=>e.className));
 const pl=await p.evaluate(()=>window.__played);

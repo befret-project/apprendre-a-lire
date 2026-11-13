@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const SIZES={tel_petit:[360,640],iphone:[390,844],tablette_portrait:[768,1024],tablette_paysage:[1024,768],pc:[1440,900]};
-const SCREENS=['who','home','lettres','peche','entends','syllabes','ecoute','train','mots','fin'];
+const SCREENS=['who','home','lire','logique','lettres','peche','entends','syllabes','ecoute','train','mots','suite','intrus','memory','sudoku','fin'];
 (async()=>{const b=await chromium.launch();const out=process.argv[2]||'/tmp/audit';require('fs').mkdirSync(out,{recursive:true});
 const report=[];
 for(const [sz,[w,h]] of Object.entries(SIZES)){
@@ -25,8 +25,9 @@ for(const [sz,[w,h]] of Object.entries(SIZES)){
     // éléments interactifs cachés sous la barre du bas sans pouvoir défiler jusqu'à eux
     r.below=de.scrollHeight<=innerHeight ? vis.filter(e=>e.getBoundingClientRect().bottom>bar.top+2 && !e.closest('.bar')).length : 0;
     const main=document.querySelector('main').getBoundingClientRect();r.mainW=Math.round(main.width);
+    r.dehors=[...(scr?scr.querySelectorAll('button,.seq,.sudo,.mem,.pond'):[])].filter(e=>e.offsetParent!==null&&!e.closest('.pond')&&(e.getBoundingClientRect().right>innerWidth+1||e.getBoundingClientRect().left<-1)).map(e=>(e.className||e.tagName).toString().slice(0,12)).slice(0,5);
     return r;});
-  report.push(`${sz.padEnd(18)} ${s.padEnd(9)} débordH=${m.hOverflow?'OUI':'non'} hauteurPage=${m.pageH} largeurContenu=${m.mainW} petitsBoutons=${JSON.stringify(m.small)} texteCoupé=${JSON.stringify(m.clipped)}`);
+  report.push(`${sz.padEnd(18)} ${s.padEnd(9)} débordH=${m.hOverflow?'OUI':'non'} hauteurPage=${m.pageH} largeurContenu=${m.mainW} petitsBoutons=${JSON.stringify(m.small)} texteCoupé=${JSON.stringify(m.clipped)} horsÉcran=${JSON.stringify(m.dehors)}`);
   await p.screenshot({path:`${out}/${sz}_${s}.png`});
  }
  await ctx.close();

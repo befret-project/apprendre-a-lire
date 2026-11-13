@@ -10,7 +10,7 @@ App web installable sur téléphone (icône sur l'écran d'accueil, plein écran
 - **iPhone / iPad** : ouvrir l'adresse dans **Safari** → bouton Partager → « Sur l'écran d'accueil ».
 - **Android** : ouvrir l'adresse dans **Chrome** → menu ⋮ → « Installer l'application ».
 
-## Les jeux (du plus facile au plus difficile)
+## Rubrique « Lire » (du plus facile au plus difficile)
 
 | Jeu | Ce que l'enfant fait |
 |---|---|
@@ -21,6 +21,19 @@ App web installable sur téléphone (icône sur l'écran d'accueil, plein écran
 | Écoute et trouve | entend une syllabe et la retrouve parmi 3 |
 | Le train | remplit les wagons avec les syllabes dans l'ordre (to·ma·te) |
 | Lis le mot | lit le mot qui va avec l'image |
+
+### Rubrique « Logique » (avec musique)
+
+| Jeu | Niveau 1 | Niveau 2 |
+|---|---|---|
+| La suite | motifs AB, AAB, ABB ; trouver le suivant | motifs ABC, AABB, ABCB… ; case manquante n'importe où |
+| L'intrus | 3 d'une famille + 1 autre (fruits, animaux, véhicules…) | familles plus fines (animaux qui volent / de la mer / de la terre) |
+| Memory | 3 paires | 6 paires |
+| Sudoku 4×4 (images) | 4 cases vides | 8 cases vides |
+
+Chaque grille de sudoku est vérifiée : **une seule solution** (`tests/sudoku-unicite.js` contrôle 4 000 grilles).
+Musique : mélodie originale générée par l'app (Web Audio, aucun fichier), **seulement dans la rubrique Logique**
+(elle gênerait l'écoute des sons dans les jeux de lecture), baissée automatiquement quand la voix parle, bouton 🎵 pour la couper.
 
 Profils : un par enfant (prénom + animal, étoiles séparées, **niveau**), gardés **uniquement sur l'appareil** (`localStorage`).
 Le niveau se change dans « Pour les parents » (bouton « Niveau ⇄ » à côté de chaque enfant).

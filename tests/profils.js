@@ -14,7 +14,7 @@ await p.screenshot({path:'/tmp/who1.png'});
 await p.click('#kids .kid >> nth=0');await W(500);
 console.log('after choose: home on:',await p.$eval('#home',e=>e.className),'chip:',await p.textContent('#stars'),'| sounds:',(await p.evaluate(()=>window.__log)).slice(-2));
 // gagner une étoile dans J'entends
-await p.click('[data-go=entends]');await W(400);await p.click('#nYes');await W(500);if(!(await p.$eval('#nYes',e=>e.className)).includes('good')){await p.click('#nNo',{force:true});await W(300);}
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('entends');await W(400);await p.click('#nYes');await W(500);if(!(await p.$eval('#nYes',e=>e.className)).includes('good')){await p.click('#nNo',{force:true});await W(300);}
 await W(800);console.log('chip after star:',await p.textContent('#stars'));
 // changer de joueur
 await p.click('#stars');await W(500);console.log('who on:',await p.$eval('#who',e=>e.className),'| cards:',await p.$$eval('#kids .kid',x=>x.map(e=>e.textContent.replace(/\s+/g,' ').trim())));
@@ -25,7 +25,11 @@ await p.click('#kids .kid >> nth=0');await W(400);
 // suppression via parents
 await p.evaluate(()=>scrollTo(0,9999));await W(200);
 console.log('admin:',await p.$$eval('#kidAdmin .kadm',x=>x.map(e=>e.textContent)));
-await p.click('#kidAdmin .kadm >> nth=1 >> button');await W(200);await p.click('#kidAdmin .kadm >> nth=1 >> button');await W(300);
+const delBtn='#kidAdmin .kadm >> nth=1 >> button:has-text("Supprimer"), #kidAdmin .kadm >> nth=1 >> button:has-text("Sûr")';
+await p.click('#kidAdmin .kadm >> nth=1 >> button:has-text("Supprimer")');await W(200);
+console.log('1er toucher (confirmation demandée):',await p.textContent('#kidAdmin .kadm >> nth=1 >> button >> nth=1'));
+await p.click('#kidAdmin .kadm >> nth=1 >> button:has-text("Sûr")');await W(300);
 console.log('admin after delete:',await p.$$eval('#kidAdmin .kadm',x=>x.map(e=>e.textContent)));
-await p.reload();await W(500);console.log('1 profil -> home direct:',await p.$eval('#home',e=>e.className),await p.textContent('#stars'));
+await p.reload();await W(500);const nk=await p.$$eval('#kidAdmin .kadm',x=>x.length);if(nk!==1) errs.push('SUPPRESSION ÉCHOUÉE: '+nk+' profils');
+console.log('1 profil -> home direct:',await p.$eval('#home',e=>e.className),await p.textContent('#stars'));
 console.log('errors',errs);await b.close();})();

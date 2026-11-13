@@ -10,7 +10,7 @@ async function run(label, ctxOpts, voices){
   await p.goto((process.env.APP_URL||(process.env.APP_URL||'http://localhost:8766/index.html')));await p.waitForTimeout(200);if(await p.$eval('#who',e=>e.classList.contains('on'))){await p.click('#kids .kid >> nth=0');await p.waitForTimeout(300);}const W=ms=>p.waitForTimeout(ms);
   const info=await p.textContent('#modeInfo');
   await p.click('#testVoice');await W(600);
-  await p.click('[data-go=peche]');await W(400);
+  await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('peche');await W(400);
   const t=await p.$eval('#pTarget',e=>e.textContent);
   await p.evaluate(t=>{const f=[...document.querySelectorAll('#pond .fish')].find(f=>f.dataset.l!==t);f&&f.click();},t);await W(500);
   console.log(`== ${label}: ${info}\n  `+(await p.evaluate(()=>window.__log)).join(' | ')+'\n  errors '+JSON.stringify(errs));

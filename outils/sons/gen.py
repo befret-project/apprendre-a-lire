@@ -28,6 +28,11 @@ PHRASES = {
   'p_oui': "Oui ! On l'entend !",
   'p_non': "Bravo ! On ne l'entend pas.",
   'c_peche': "Attrape toutes les lettres comme celle-ci !",
+  # rubrique Logique (sons produits avec gen2.py, voir logique_phrases.json)
+  'c_suite': "Qu'est-ce qui vient après ? Trouve la bonne image !",
+  'c_intrus': "Trouve celui qui n'est pas de la même famille !",
+  'c_memory': "Retourne deux cartes, et trouve les paires !",
+  'c_sudoku': "Dans chaque ligne et chaque colonne, il faut une image de chaque. Choisis la bonne image !",
 }
 CONS = list('mplrstvfndb'); VOYS = ['a', 'e', 'i', 'o', 'u', 'é']
 SYL = {c + v for c in CONS for v in VOYS}

@@ -6,7 +6,7 @@ await p.addInitScript(()=>{window.__played=[];
 await p.goto((process.env.APP_URL||(process.env.APP_URL||'http://localhost:8766/index.html')));await p.waitForTimeout(200);if(await p.$eval('#who',e=>e.classList.contains('on'))){await p.click('#kids .kid >> nth=0');await p.waitForTimeout(300);}const W=ms=>p.waitForTimeout(ms);
 await p.screenshot({path:'/tmp/menu.png',fullPage:true});
 // PECHE
-await p.click('[data-go=peche]');await W(400);await p.screenshot({path:'/tmp/peche.png'});
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('peche');await W(400);await p.screenshot({path:'/tmp/peche.png'});
 for(let r=0;r<5;r++){
   const t=await p.$eval('#pTarget',e=>e.textContent);
   // one wrong tap
@@ -17,13 +17,13 @@ for(let r=0;r<5;r++){
 console.log('peche end:',await p.$eval('#bravo',e=>e.className));
 await p.click('#endHome');await W(300);
 // ENTENDS
-await p.click('[data-go=entends]');await W(400);await p.screenshot({path:'/tmp/entends.png'});
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('entends');await W(400);await p.screenshot({path:'/tmp/entends.png'});
 for(let r=0;r<5;r++){ await p.click('#nYes');await W(500); if(!(await p.$eval('#nYes',e=>e.className)).includes('good')){ await p.click('#nNo',{force:true});await W(300);} await W(900);}
 console.log('entends end:',await p.$eval('#bravo',e=>e.className));
 await p.click('#endAgain');await W(400);console.log('replay entends on:',await p.$eval('#entends',e=>e.className), 'dots:',await p.$$eval('#nDots .on',x=>x.length));
 await p.click('#homeBtn');await W(300);
 // TRAIN
-await p.click('[data-go=train]');await W(400);
+await (async g=>{const sec=['suite','intrus','memory','sudoku'].includes(g)?'logique':'lire';await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.click('[data-go='+sec+']');await p.waitForTimeout(550);await p.click('[data-go='+g+']');})('train');await W(400);
 for(let r=0;r<5;r++){
   if(r===0){ await p.screenshot({path:'/tmp/train0.png'}); }
   // wrong taps first then correct via wagon count & hint
