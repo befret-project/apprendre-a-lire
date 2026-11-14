@@ -18,7 +18,7 @@
 <style>
   :root{
     --peach:#FFB38A; --lemon:#FFE07A; --teal:#79D7E6;
-    --bg:#FFF8EE; --card:#FFFFFF; --ink:#2B2A33; --muted:#7A7685;
+    --bg:#FFF8EE; --card:#FFFFFF; --ink:#2B2A33; --muted:#66616F;
     --voy:#E0413A; --con:#2F6FDB; --ok:#2FA36B; --sun:#FFB627;
     --pink:#FF8FAB; --mint:#7ED6B2; --sky:#8EC5FF; --lav:#C3A6FF;
   }
@@ -80,7 +80,7 @@
   .tile{border-radius:28px;padding:26px 14px;font-size:26px;font-weight:700;color:var(--ink);box-shadow:0 6px 0 #0002;transition:transform .1s}
   .tile:active{transform:translateY(4px);box-shadow:0 2px 0 #0002}
   .tile .ico{font-size:58px;display:block;margin-bottom:8px}
-  .tile small{display:block;font-size:16px;font-weight:400;margin-top:6px;color:#2B2A33cc}
+  .tile small{display:block;font-size:16px;font-weight:400;margin-top:6px;color:#2B2A33}
   .parents{margin-top:30px;background:var(--card);border-radius:20px;padding:16px 20px;font-size:16px;color:var(--muted);line-height:1.5}
   .parents b{color:var(--ink)}
   .v{color:var(--voy)} .c{color:var(--con)}
@@ -260,11 +260,22 @@
     .palette{margin-top:10px}
     .palette .choice{font-size:38px;padding:8px 0}
   }
+
+  /* ----- tour de boucle n°1 (critique design) ----- */
+  /* réponses : dernière réponse centrée, 3 colonnes pour 3 réponses courtes, une seule ligne sur grand écran */
+  .choices{display:flex;flex-wrap:wrap;justify-content:center}
+  .choices > .choice{flex:1 1 calc(50% - 16px);max-width:calc(50% - 8px)}
+  .choices.trois > .choice{flex-basis:calc(33.33% - 16px);max-width:calc(33.33% - 11px)}
+  .choices.grid4{display:grid}
+  .choices.grid4 > .choice{max-width:none}
+  @media (min-width:700px){ .choices > .choice, .choices.trois > .choice{flex:1 1 0;max-width:280px} }
+  .seq{flex-wrap:nowrap}
+  .say{white-space:nowrap;flex:none}
 </style>
 </head>
 <body class="at-home">
 <nav class="bar">
-  <button class="home-btn" id="homeBtn" aria-label="Accueil">🏠</button>
+  <button class="home-btn" id="homeBtn" aria-label="Retour">🏠</button>
   <button class="musbtn" id="musBtn" aria-label="Musique">🎵</button>
   <button class="stars" id="stars" aria-label="Changer de joueur">⭐ 0</button>
 </nav>
@@ -321,15 +332,15 @@
   <!-- SUITE -->
   <section class="screen" id="suite">
     <h2>La suite</h2>
-    <div class="show"><div class="seq" id="qSeq"></div><button class="say" id="qSay">🔊 Écoute</button></div>
+    <div class="show"><div class="seq" id="qSeq"></div><button class="say" id="qSay" aria-label="Écouter la consigne">🔊 Écoute</button></div>
     <div class="dots" id="qDots"></div>
-    <div class="choices pics" id="qChoices"></div>
+    <div class="choices pics trois" id="qChoices"></div>
   </section>
 
   <!-- INTRUS -->
   <section class="screen" id="intrus">
     <h2>L'intrus</h2>
-    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:20px">Qui n'est pas de la même famille&nbsp;?</div><button class="say" id="iSay">🔊</button></div>
+    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:20px">Qui n'est pas de la même famille&nbsp;?</div><button class="say" id="iSay" aria-label="Écouter la consigne">🔊 Écoute</button></div>
     <div class="dots" id="iDots"></div>
     <div class="choices pics grid4" id="iChoices"></div>
   </section>
@@ -344,7 +355,7 @@
   <!-- SUDOKU -->
   <section class="screen" id="sudoku">
     <h2>Sudoku</h2>
-    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:18px">Une image de chaque dans chaque ligne et chaque colonne</div><button class="say" id="kSay">🔊</button></div>
+    <div class="show inline" style="padding:10px"><div class="hint" style="font-size:18px">Une image de chaque dans chaque ligne et chaque colonne</div><button class="say" id="kSay" aria-label="Écouter la consigne">🔊 Écoute</button></div>
     <div class="dots" id="kDots"></div>
     <div class="sudowrap">
       <div class="sudo" id="kGrid"></div>
@@ -394,7 +405,7 @@
       <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap">
         <span class="big c" id="sC">m</span><span class="plus">+</span><span class="big v" id="sV">a</span><span class="plus">=</span><span class="big" id="sR"><span class="c">m</span><span class="v">a</span></span>
       </div>
-      <button class="say" id="sSay">🔊 Écouter</button>
+      <button class="say" id="sSay" aria-label="Écouter la syllabe">🔊 Écoute</button>
     </div>
     <div class="rowlab">1. Choisis une consonne</div>
     <div class="row" id="rowC"></div>
@@ -406,11 +417,11 @@
   <section class="screen" id="ecoute">
     <h2>Écoute et trouve</h2>
     <div class="show" style="min-height:140px">
-      <button class="say" id="eSay" style="font-size:30px">🔊 Écoute</button>
+      <button class="say" id="eSay" style="font-size:30px" aria-label="Écouter la syllabe">🔊 Écoute</button>
       <div class="hint" style="margin-top:10px">Touche la bonne syllabe</div>
     </div>
     <div class="dots" id="eDots"></div>
-    <div class="choices" id="eChoices"></div>
+    <div class="choices trois" id="eChoices"></div>
   </section>
 
   <!-- MOTS -->
@@ -418,7 +429,7 @@
     <h2>Lis le mot</h2>
     <div class="show">
       <div class="emo" id="mEmo" style="font-size:110px">🍅</div>
-      <button class="say" id="mHelp" style="font-size:18px;padding:10px 18px">🔊 Aide-moi</button>
+      <button class="say" id="mHelp" aria-label="Écouter le mot en syllabes">🔊 Écoute</button>
     </div>
     <div class="dots" id="mDots"></div>
     <div class="choices" id="mChoices"></div>
@@ -426,7 +437,7 @@
   <!-- PÊCHE -->
   <section class="screen" id="peche">
     <h2>La pêche aux lettres</h2>
-    <div class="show inline"><div class="big" id="pTarget">m</div><button class="say" id="pSay">🔊 Écoute</button></div>
+    <div class="show inline"><div class="big" id="pTarget">m</div><button class="say" id="pSay" aria-label="Écouter le son">🔊 Écoute</button></div>
     <div class="dots" id="pDots"></div>
     <div class="pond" id="pond"></div>
   </section>
@@ -436,7 +447,7 @@
     <h2>J'entends ou pas ?</h2>
     <div class="show">
       <div style="display:flex;align-items:center;justify-content:center;gap:24px"><div class="big" id="nSon">ou</div><div class="emo" id="nEmo" style="font-size:90px">🐺</div></div>
-      <button class="say" id="nSay">🔊 Écoute</button>
+      <button class="say" id="nSay" aria-label="Écouter la question">🔊 Écoute</button>
     </div>
     <div class="dots" id="nDots"></div>
     <div class="yesno">
@@ -451,7 +462,7 @@
     <div class="show">
       <div class="emo" id="tEmo" style="font-size:80px">🍅</div>
       <div class="wagons" id="tWagons"></div>
-      <button class="say" id="tSay" style="font-size:18px;padding:10px 18px">🔊 Écoute le mot</button>
+      <button class="say" id="tSay" aria-label="Écouter le mot">🔊 Écoute</button>
     </div>
     <div class="dots" id="tDots"></div>
     <div class="choices" id="tChoices"></div>
@@ -1139,6 +1150,7 @@
     // niveau 1 : on cherche le suivant (la dernière case) ; niveau 2 : une case au hasard
     var miss = N2 ? Math.floor(Math.random()*len) : len-1;
     qAns = seq[miss];
+    $('qSeq').style.fontSize = 'min(64px, calc((min(100vw, 1120px) - 90px) / ' + (len * 1.32).toFixed(2) + '))';
     $('qSeq').innerHTML = seq.map(function(e,i){ return i===miss ? '<span class="q">❓</span>' : '<span>'+e+'</span>'; }).join('');
     var used = Object.keys(map).filter(function(k){ return unit.indexOf(k)>=0; }).map(function(k){ return map[k]; });
     var opts = [qAns];
