@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');
 const SIZES={tel_petit:[360,640],iphone:[390,844],tablette_portrait:[768,1024],tablette_paysage:[1024,768],pc:[1440,900]};
-const SCREENS=['who','home','lire','logique','lettres','peche','entends','syllabes','ecoute','train','mots','suite','intrus','memory','sudoku','fin'];
+const SCREENS=['who','home','lire','logique','lettres','peche','entends','syllabes','ecoute','train','mots','suite','intrus','memory','sudoku','complete','compter','ombres','laby','album','fin'];
 (async()=>{const b=await chromium.launch();const out=process.argv[2]||'/tmp/audit';require('fs').mkdirSync(out,{recursive:true});
 const report=[];
 for(const [sz,[w,h]] of Object.entries(SIZES)){
@@ -13,7 +13,7 @@ for(const [sz,[w,h]] of Object.entries(SIZES)){
   if(s==='who'){await p.evaluate(()=>document.getElementById('stars').click());}
   else if(s==='home'){await p.evaluate(()=>document.getElementById('homeBtn').click());}
   else if(s==='fin'){await p.evaluate(()=>{document.getElementById('homeBtn').click();});await p.waitForTimeout(600);await p.evaluate(()=>{document.querySelector('[data-go=mots]').click();});await p.waitForTimeout(600);await p.evaluate(()=>{const b=document.getElementById('bravo');document.getElementById('bravoT').textContent='Bravo ! ⭐ 12';b.classList.add('on','end');});}
-  else {await p.evaluate(()=>document.getElementById('homeBtn').click());await p.waitForTimeout(550);await p.evaluate(s=>document.querySelector(`[data-go=${s}]`).click(),s);}
+  else {await p.evaluate(()=>{document.getElementById('homeBtn').click();});await p.waitForTimeout(550);await p.evaluate(()=>{document.getElementById('homeBtn').click();});await p.waitForTimeout(550);await p.evaluate(s=>document.querySelector(`[data-go=${s}]`).click(),s);}
   await p.waitForTimeout(700);
   if(s==='lettres'){await p.evaluate(()=>document.querySelectorAll('#letterGrid .letter')[6].click());await p.waitForTimeout(200);}
   const m=await p.evaluate(()=>{

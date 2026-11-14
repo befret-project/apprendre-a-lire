@@ -2,7 +2,7 @@ const {chromium}=require('playwright');
 (async()=>{const b=await chromium.launch();
 for(const level of [1,2]){
 const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.addInitScript((level)=>{window.__played=[];window.__music=0;
+await p.addInitScript((level)=>{setInterval(()=>{const s=document.getElementById('sticker');if(s&&s.classList.contains('on'))s.classList.remove('on');},40);window.__played=[];window.__music=0;
   localStorage.setItem('lire_profils',JSON.stringify([{id:'a',name:'Léa',avatar:'🐰',stars:0,level}]));localStorage.setItem('lire_actif','a');
   HTMLMediaElement.prototype.play=function(){const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===this.src);window.__played.push(k||'??');setTimeout(()=>this.onended&&this.onended(),20);return Promise.resolve();};HTMLMediaElement.prototype.pause=function(){};
   const O=window.AudioContext;window.AudioContext=function(){const c=new O();const co=c.createOscillator.bind(c);c.createOscillator=function(){window.__music++;return co();};return c;};},level);

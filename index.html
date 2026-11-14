@@ -271,6 +271,26 @@
   @media (min-width:700px){ .choices > .choice, .choices.trois > .choice{flex:1 1 0;max-width:280px} }
   .seq{flex-wrap:nowrap}
   .say{white-space:nowrap;flex:none}
+  /* 3 syllabes côte à côte sur petit écran (ex. « chan ») : taille adaptée à la largeur */
+  .choices.trois:not(.pics):not(.nums) > .choice{font-size:clamp(28px, 9vw, 44px);padding-left:4px;padding-right:4px}
+
+  /* ----- boucle 2 : nouveaux jeux + album ----- */
+  .hub .hubwide{grid-column:1 / -1;padding:18px 10px;font-size:24px}
+  .hub .hubwide .ico{font-size:46px;display:inline-block;vertical-align:middle;margin:0 10px 0 0}
+  .cword{font-size:clamp(34px,10vw,56px);font-weight:700;margin:4px 0 8px}
+  .cword .q{display:inline-block;min-width:1.6em;border-bottom:5px dashed var(--sun);color:var(--muted)}
+  .heap{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;max-width:420px;font-size:clamp(38px,10vw,56px);margin-bottom:8px}
+  .nums .choice{font-size:clamp(46px,13vw,72px)}
+  .shadow{font-size:clamp(110px,30vw,170px);line-height:1.1;filter:brightness(0) opacity(.85);transition:filter .5s}
+  .shadow.reveal{filter:none}
+  .maze{display:grid;margin:0 auto;border-radius:10px;overflow:hidden;box-shadow:0 6px 0 #0002;background:#5A4A7A;border:3px solid #5A4A7A;
+        width:min(94vw, 520px, calc(100svh - var(--topgap) - 210px));min-width:240px}
+  .mz{aspect-ratio:1;padding:0;border-radius:0;font-size:clamp(28px,9vw,46px);display:flex;align-items:center;justify-content:center;min-width:0;background:#FFF8EE}
+  .mz.seen{background:#FFE9B0}
+  .mz.no{animation:shake .35s}
+  .album{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:12px}
+  .stk{aspect-ratio:1;border-radius:18px;background:var(--card);box-shadow:0 4px 0 #0001;font-size:44px;display:flex;align-items:center;justify-content:center}
+  .stk.locked{background:#EDE7F4;font-size:26px;opacity:.7}
 </style>
 </head>
 <body class="at-home">
@@ -314,6 +334,7 @@
       <button class="tile" style="background:var(--mint)" data-go="ecoute"><span class="ico">👂</span>Écoute et trouve<small>Quelle syllabe ?</small></button>
       <button class="tile" style="background:var(--lemon)" data-go="train"><span class="ico">🚂</span>Le train<small>Construis le mot</small></button>
       <button class="tile" style="background:var(--lav)" data-go="mots"><span class="ico">🖼️</span>Lis le mot<small>Quel mot va avec l'image ?</small></button>
+      <button class="tile" style="background:var(--teal)" data-go="complete"><span class="ico">🧩</span>Complète<small>Quelle syllabe manque ?</small></button>
     </div>
   </section>
 
@@ -326,6 +347,9 @@
       <button class="tile" style="background:var(--peach)" data-go="intrus"><span class="ico">🕵️</span>L'intrus<small>Qui n'est pas de la famille ?</small></button>
       <button class="tile" style="background:var(--lemon)" data-go="memory"><span class="ico">🃏</span>Memory<small>Trouve les paires</small></button>
       <button class="tile" style="background:var(--lav)" data-go="sudoku"><span class="ico">🔢</span>Sudoku<small>Une image de chaque</small></button>
+      <button class="tile" style="background:var(--sky)" data-go="compter"><span class="ico">🧮</span>Compter<small>Combien y en a-t-il ?</small></button>
+      <button class="tile" style="background:var(--mint)" data-go="ombres"><span class="ico">🌑</span>Les ombres<small>Quelle image va avec ?</small></button>
+      <button class="tile" style="background:var(--teal)" data-go="laby"><span class="ico">🧭</span>Labyrinthe<small>Trouve le chemin</small></button>
     </div>
   </section>
 
@@ -363,6 +387,44 @@
     </div>
   </section>
 
+  <!-- COMPLÈTE LE MOT -->
+  <section class="screen" id="complete">
+    <h2>Complète le mot</h2>
+    <div class="show"><div class="emo" id="cEmo" style="font-size:80px">🍅</div><div class="word cword" id="cWord"></div><button class="say" id="cSay" aria-label="Écouter le mot">🔊 Écoute</button></div>
+    <div class="dots" id="cDots"></div>
+    <div class="choices trois" id="cChoices"></div>
+  </section>
+
+  <!-- COMPTER -->
+  <section class="screen" id="compter">
+    <h2>Compter</h2>
+    <div class="show"><div class="heap" id="hHeap"></div><button class="say" id="hSay" aria-label="Écouter la consigne">🔊 Écoute</button></div>
+    <div class="dots" id="hDots"></div>
+    <div class="choices trois nums" id="hChoices"></div>
+  </section>
+
+  <!-- OMBRES -->
+  <section class="screen" id="ombres">
+    <h2>Les ombres</h2>
+    <div class="show"><div class="shadow" id="oShadow">🐘</div><button class="say" id="oSay" aria-label="Écouter la consigne">🔊 Écoute</button></div>
+    <div class="dots" id="oDots"></div>
+    <div class="choices pics trois" id="oChoices"></div>
+  </section>
+
+  <!-- LABYRINTHE -->
+  <section class="screen" id="laby">
+    <h2>Labyrinthe</h2>
+    <div class="dots" id="lDots"></div>
+    <div class="maze" id="lMaze"></div>
+  </section>
+
+  <!-- ALBUM -->
+  <section class="screen" id="album">
+    <h1>📒 Mes autocollants</h1>
+    <p class="sub" id="albumSub"></p>
+    <div class="album" id="albumGrid"></div>
+  </section>
+
   <!-- ACCUEIL -->
   <section class="screen on" id="home">
     <h1>J'apprends <span class="v">à</span> lire !</h1>
@@ -370,6 +432,7 @@
     <div class="hub">
       <button class="tile hubtile" style="background:var(--sky)" data-go="lire"><span class="ico">📖</span>Lire<small>Lettres, sons, mots</small></button>
       <button class="tile hubtile" style="background:var(--mint)" data-go="logique"><span class="ico">🧠</span>Logique<small>Suites, intrus, memory, sudoku</small></button>
+      <button class="tile hubtile hubwide" style="background:var(--lemon)" data-go="album"><span class="ico">📒</span>Mes autocollants<small id="albumInfo">1 nouveau toutes les 5 étoiles</small></button>
     </div>
     <div class="parents">
       <b>Pour les parents :</b> les jeux sont rangés du plus facile au plus difficile, <b>10 minutes par jour</b> suffisent, toujours à côté de l'enfant.
@@ -469,6 +532,11 @@
   </section>
 </main>
 
+<div class="bravo" id="sticker" style="z-index:25">
+  <div class="t" style="font-size:clamp(30px,7vw,52px)">Nouvel autocollant !</div>
+  <div class="e" id="stickerE" style="font-size:150px;animation:pop .5s">🦄</div>
+  <button class="say" id="stickerOk" style="font-size:44px;margin-top:10px;padding:14px 40px" aria-label="Continuer">👍</button>
+</div>
 <div class="bravo" id="bravo">
   <div class="e" id="bravoE">🏆</div>
   <div class="t" id="bravoT">Bravo !</div>
@@ -493,7 +561,7 @@
      Choix automatique, modifiable par le parent (mémorisé sur l'appareil).
      ========================================================= */
   var SONS = window.SONS || {};
-  var TEXTES = {"c_suite": "Qu'est-ce qui vient après ? Trouve la bonne image !", "c_intrus": "Trouve celui qui n'est pas de la même famille !", "c_memory": "Retourne deux cartes, et trouve les paires !", "c_sudoku": "Dans chaque ligne et chaque colonne, il faut une image de chaque. Choisis la bonne image !", "p_test": "Bonjour ! On va apprendre à lire ensemble.", "c_lettres": "Touche une lettre, et écoute !", "c_syllabes": "Touche une lettre bleue, puis une lettre rouge !", "c_mots": "Regarde l'image. Quel mot va avec ?", "p_ecoute": "Écoute bien.", "p_bravo": "Bravo !", "p_presque": "Presque ! Écoute encore.", "p_regarde": "Regarde, c'est celui-là !", "p_cacest": "Ça, c'est", "p_essaie": "Essaie encore !", "p_clignote": "Regarde, c'est celui qui clignote !", "p_trophee": "Bravo ! Tu as gagné plein d'étoiles !", "p_fin": "Bravo ! Tu as fini ! On rejoue, ou on rentre à la maison ?", "c_train": "Construis le mot ! Touche les syllabes dans le bon ordre.", "c_entends": "Écoute bien, et réponds avec ton pouce !", "p_entends": "Est-ce que tu entends", "p_dans": "dans", "p_oui": "Oui ! On l'entend !", "p_non": "Bravo ! On ne l'entend pas.", "c_peche": "Attrape toutes les lettres comme celle-ci !"};
+  var TEXTES = {"c_compter": "Combien y en a-t-il ? Compte bien !", "c_ombres": "Quelle image va avec l'ombre ?", "c_laby": "Aide ton animal à trouver l'étoile ! Touche le chemin.", "c_complete": "Quelle syllabe manque dans le mot ?", "p_autocollant": "Bravo ! Tu as gagné un nouvel autocollant !", "c_album": "Voici ton album d'autocollants !", "c_suite": "Qu'est-ce qui vient après ? Trouve la bonne image !", "c_intrus": "Trouve celui qui n'est pas de la même famille !", "c_memory": "Retourne deux cartes, et trouve les paires !", "c_sudoku": "Dans chaque ligne et chaque colonne, il faut une image de chaque. Choisis la bonne image !", "p_test": "Bonjour ! On va apprendre à lire ensemble.", "c_lettres": "Touche une lettre, et écoute !", "c_syllabes": "Touche une lettre bleue, puis une lettre rouge !", "c_mots": "Regarde l'image. Quel mot va avec ?", "p_ecoute": "Écoute bien.", "p_bravo": "Bravo !", "p_presque": "Presque ! Écoute encore.", "p_regarde": "Regarde, c'est celui-là !", "p_cacest": "Ça, c'est", "p_essaie": "Essaie encore !", "p_clignote": "Regarde, c'est celui qui clignote !", "p_trophee": "Bravo ! Tu as gagné plein d'étoiles !", "p_fin": "Bravo ! Tu as fini ! On rejoue, ou on rentre à la maison ?", "c_train": "Construis le mot ! Touche les syllabes dans le bon ordre.", "c_entends": "Écoute bien, et réponds avec ton pouce !", "p_entends": "Est-ce que tu entends", "p_dans": "dans", "p_oui": "Oui ! On l'entend !", "p_non": "Bravo ! On ne l'entend pas.", "c_peche": "Attrape toutes les lettres comme celle-ci !"};
   var PRON = {"ma": "ma", "pa": "pas", "la": "la", "ra": "rat", "sa": "sa", "ta": "ta", "va": "va", "fa": "fa", "na": "na", "da": "da", "ba": "bas", "me": "me", "pe": "peu", "le": "le", "re": "reu", "se": "ce", "te": "te", "ve": "veut", "fe": "feu", "ne": "ne", "de": "de", "be": "bœufs", "mi": "mie", "pi": "pie", "li": "lit", "ri": "riz", "si": "si", "ti": "ti", "vi": "vie", "fi": "fi", "ni": "nid", "di": "dit", "bi": "bi", "mo": "mot", "po": "pot", "lo": "lot", "ro": "rot", "so": "seau", "to": "tôt", "vo": "veau", "fo": "faux", "no": "nos", "do": "dos", "bo": "beau", "mu": "mue", "pu": "pu", "lu": "lu", "ru": "rue", "su": "su", "tu": "tu", "vu": "vu", "fu": "fut", "nu": "nu", "du": "du", "bu": "bu", "mé": "mé", "pé": "pé", "lé": "lé", "ré": "ré", "sé": "sé", "té": "thé", "vé": "vé", "fé": "fée", "né": "nez", "dé": "dé", "bé": "bé", "a": "a", "e": "eux", "i": "i", "o": "eau", "u": "u", "é": "et", "ou": "ou", "mou": "mou", "ga": "gars", "ca": "cas", "ki": "qui", "zè": "zè", "wi": "oui", "tor": "tort", "tue": "tu", "vre": "vreu", "tom": "tom"};
   function texte(k){
     if(TEXTES[k]) return TEXTES[k];
@@ -555,8 +623,12 @@
     } else done(my, 0);
   }
   // joue une suite de sons (ex. « Bravo ! » puis « mo »), puis appelle onend
+  var pendingSticker = false;
   function play(keys, onend){
     stopAudio(); try{ Music.duck(true); }catch(e){}
+    if(pendingSticker && keys.indexOf('p_bravo') >= 0){   // la manche suivante attend la fin de l'annonce
+      pendingSticker = false; keys = keys.concat(['p_autocollant']); try{ showSticker(false); }catch(e){}
+    }
     queue = keys.slice();
     qEnd = onend || null;
     next();
@@ -601,6 +673,7 @@
   // Niveau 1 : voyelles simples. Niveau 2 : + ch, ou, on, an, in, oi.
   function niveau(){ var k = cur(); return k ? (k.level || 1) : (parseInt(store('lire_niveau')||'1',10) || 1); }
   function renderStars(){ var k = cur(); $('stars').textContent = (k ? k.avatar + ' ' : '') + '⭐ ' + stars;
+    try{ renderAlbumInfo(); }catch(e){}
     var nv = $('nivInfo'); if(nv) nv.textContent = 'Niveau ' + niveau() + (niveau() === 2 ? ' · ch, ou, on, an, in, oi' : ''); }
   var bravoTimer = null;
   function closeBravo(){ clearTimeout(bravoTimer); $('bravo').classList.remove('on'); }
@@ -608,7 +681,10 @@
     stars++;
     var k = cur(); if(k){ k.stars = stars; saveKids(); } else store('lire_stars', String(stars));
     renderStars(); confetti(10);
-    return stars % 10 === 0;   // vrai = palier atteint, le jeu affiche le trophée après sa phrase
+    // nouvel autocollant toutes les 5 étoiles : annoncé juste après le « Bravo » (voir play),
+    // ou après 2,5 s dans les jeux sans « Bravo » (Les lettres, Je colle)
+    if(stars % 5 === 0){ pendingSticker = true; setTimeout(function(){ if(pendingSticker){ pendingSticker = false; showSticker(true); } }, 2500); }
+    return false;   // (ancien trophée toutes les 10 étoiles remplacé par l'album)
   }
   function showTrophy(){
     var prizes=['🏆','🦄','🚀','👑','🌈','🎁'];
@@ -654,15 +730,16 @@
     syllabes: 'Touche une lettre bleue, puis une lettre rouge !',
     mots:     'Regarde l\'image. Quel mot va avec ?'
   };
-  var LOGIQUE = ['logique','suite','intrus','memory','sudoku'];
+  var LOGIQUE = ['logique','suite','intrus','memory','sudoku','compter','ombres','laby','album'];
   var PARENT = {lire:'home', logique:'home', lettres:'lire', peche:'lire', entends:'lire', syllabes:'lire', ecoute:'lire', train:'lire', mots:'lire',
-                suite:'logique', intrus:'logique', memory:'logique', sudoku:'logique'};
+                suite:'logique', intrus:'logique', memory:'logique', sudoku:'logique',
+                compter:'logique', ombres:'logique', laby:'logique', complete:'lire', album:'home'};
   var screenNow = 'home';
   function go(id, silent){
     stopAudio(); closeEnd(); closeBravo(); screenNow = id;
     // musique partout (accueil, Lire, Logique), SAUF « J'entends ? » et « Écoute et trouve » :
     // là, entendre le son précis est l'exercice (choix des parents, nov. 2026)
-    var logi = LOGIQUE.indexOf(id) >= 0 || ['home','who','lire','lettres','peche','syllabes','train','mots'].indexOf(id) >= 0;
+    var logi = LOGIQUE.indexOf(id) >= 0 || ['home','who','lire','lettres','peche','syllabes','train','mots','complete'].indexOf(id) >= 0;
     document.body.classList.toggle('musique-ok', logi);
     if(logi) Music.start(); else Music.stop();
     document.body.classList.toggle('at-home', id==='home' || id==='who');
@@ -680,6 +757,11 @@
     else if(id==='intrus'){ iDone=0; newIntrus(true); }
     else if(id==='memory'){ yDone=0; newMemory(true); }
     else if(id==='sudoku'){ kDone=0; newSudoku(true); }
+    else if(id==='complete'){ cDone=0; newComplete(true); }
+    else if(id==='compter'){ hDone=0; newCompter(true); }
+    else if(id==='ombres'){ oDone=0; newOmbres(true); }
+    else if(id==='laby'){ lDone=0; newLaby(true); }
+    else if(id==='album'){ renderAlbum(); play(['c_album']); }
   }
   document.querySelectorAll('[data-go]').forEach(function(b){ tap(b, function(){ go(b.dataset.go); }, 500); });
   tap($('homeBtn'), function(){ go(PARENT[screenNow] || 'home'); }, 500);
@@ -1311,9 +1393,188 @@
   }
   tap($('kSay'), function(){ if(!kLock) play(['c_sudoku']); });
 
+  /* =========================================================
+     BOUCLE 2 : album, Complète le mot, Compter, Ombres, Labyrinthe
+     ========================================================= */
+  // 40 autocollants ; l'enfant en débloque un toutes les 5 étoiles (ordre fixe, propre à l'app)
+  var STICKERS = ['🦄','🐉','🦖','🚀','🌈','🦁','🐼','🐙','🦋','🐳','🦊','🐯','🍦','🍩','🎈','🎁','🏰','⚽','🎨','🎸',
+                  '🌻','🍄','🦉','🐢','🦜','🐬','🦩','🐝','🐞','🌟','🌙','⛄','🎠','🚂','🛸','🧸','👑','💎','🎉','🏆'];
+  function albumCount(){ return Math.min(STICKERS.length, Math.floor(stars / 5)); }
+  function renderAlbum(){
+    var n = albumCount(), g = $('albumGrid'); g.innerHTML = '';
+    STICKERS.forEach(function(e, i){
+      var d = document.createElement('div'); d.className = 'stk' + (i < n ? '' : ' locked'); d.textContent = i < n ? e : '🔒'; g.appendChild(d);
+    });
+    var rest = 5 - (stars % 5);
+    $('albumSub').textContent = n + ' / ' + STICKERS.length + (n < STICKERS.length ? ' · encore ' + rest + ' ⭐ pour le prochain' : ' · album complet !');
+  }
+  function renderAlbumInfo(){ if(!STICKERS) return; var el = $('albumInfo'); if(el) el.textContent = albumCount() + ' / ' + STICKERS.length + ' · 1 nouveau toutes les 5 ⭐'; }
+  function showSticker(withVoice){
+    var n = albumCount(); if(n < 1) return;
+    $('stickerE').textContent = STICKERS[n-1];
+    $('sticker').classList.add('on'); confetti(20);
+    if(withVoice) play(['p_autocollant']);
+    renderAlbumInfo();
+    setTimeout(function(){ $('sticker').classList.remove('on'); }, 4500);
+  }
+  tap($('stickerOk'), function(){ $('sticker').classList.remove('on'); }, 300);
+  $('sticker').addEventListener('click', function(){ $('sticker').classList.remove('on'); });
+
+  // bonne réponse générique (jeux à 5 manches ou moins)
+  function winRound(id, dotsId, done, total, extraKeys, next){
+    addStar(); dots(dotsId, done, total);
+    play((extraKeys || []).concat(['p_bravo']), function(){
+      if(!isOn(id)) return;
+      if(done >= total) showEnd(id); else setTimeout(function(){ if(isOn(id)) next(false); }, 450);
+    });
+  }
+  function wrong(btn, keys){ btn.classList.add('gone'); play(['x_boing'].concat(keys || ['p_essaie'])); }
+
+  /* ---------- Complète le mot : une syllabe manque ---------- */
+  var cDone=0, cLock=false, cErr=0, cW=null, cMiss=0, cLast=null;
+  function newComplete(intro){
+    cLock=false; cErr=0; dots('cDots', cDone);
+    var L = trainL(); var w; do{ w = rnd(L); }while(w === cLast); cLast = w; cW = w;
+    var parts = w[0].split('·'); cMiss = Math.floor(Math.random()*parts.length);
+    $('cEmo').textContent = w[1];
+    $('cWord').innerHTML = parts.map(function(x, i){ return i === cMiss ? '<span class="q">❓</span>' : color(x); }).join('<span class="syl-dot">·</span>');
+    var ans = parts[cMiss], opts = [ans];
+    while(opts.length < 3){ var d = rnd(consL()) + rnd(voyJeu()); if(opts.indexOf(d) < 0 && parts.indexOf(d) < 0) opts.push(d); }
+    var box = $('cChoices'); box.innerHTML = '';
+    shuffle(opts).forEach(function(o){
+      var b = document.createElement('button'); b.className = 'choice'; b.innerHTML = color(o); b.dataset.s = o;
+      tap(b, function(){
+        if(cLock) return;
+        if(o === ans){
+          cLock = true; b.classList.add('good');
+          $('cWord').innerHTML = parts.map(color).join('<span class="syl-dot">·</span>');
+          cDone++; winRound('complete', 'cDots', cDone, ROUND, sylKeys(w[0]).concat(['w_' + plain(w[0])]), newComplete);
+        } else {
+          cErr++;
+          if(cErr >= 2) box.querySelectorAll('.choice').forEach(function(x){ if(x.dataset.s === ans) x.classList.add('hintme'); });
+          wrong(b, ['s_' + o, 'p_essaie']);
+        }
+      });
+      box.appendChild(b);
+    });
+    play((intro ? ['c_complete'] : []).concat(['w_' + plain(w[0])]));
+  }
+  tap($('cSay'), function(){ if(cW && !cLock) play(['w_' + plain(cW[0])]); });
+
+  /* ---------- Compter : combien d'objets ? ---------- */
+  var hDone=0, hLock=false, hErr=0, hN=0;
+  function newCompter(intro){
+    hLock=false; hErr=0; dots('hDots', hDone);
+    var N2 = niveau() === 2, max = N2 ? 10 : 5, min = N2 ? 3 : 1;
+    var n; do{ n = min + Math.floor(Math.random()*(max-min+1)); }while(n === hN); hN = n;
+    var e = rnd(rnd(THEMES));
+    var h = ''; for(var i=0;i<n;i++) h += '<span>' + e + '</span>'; $('hHeap').innerHTML = h;
+    var opts = [n];
+    shuffle([n-2, n-1, n+1, n+2]).forEach(function(x){ if(opts.length < 3 && x >= 1 && x <= 10) opts.push(x); });
+    opts.sort(function(a,b){ return a-b; });   // nombres dans l'ordre : plus facile à lire
+    var box = $('hChoices'); box.innerHTML = '';
+    opts.forEach(function(x){
+      var b = document.createElement('button'); b.className = 'choice'; b.textContent = x; b.dataset.n = x;
+      tap(b, function(){
+        if(hLock) return;
+        if(x === n){ hLock = true; b.classList.add('good'); hDone++; winRound('compter', 'hDots', hDone, ROUND, ['n_' + n], newCompter); }
+        else {
+          hErr++;
+          if(hErr >= 2) box.querySelectorAll('.choice').forEach(function(y){ if(+y.dataset.n === n) y.classList.add('hintme'); });
+          wrong(b, ['n_' + x, 'p_essaie']);
+        }
+      });
+      box.appendChild(b);
+    });
+    if(intro) play(['c_compter']);
+  }
+  tap($('hSay'), function(){ if(!hLock) play(['c_compter']); });
+
+  /* ---------- Les ombres : quelle image a cette silhouette ? ---------- */
+  // niveau 2 : les autres choix ont une forme proche (même famille)
+  var OMB1 = ['🐘','🦒','🐢','🦀','🐌','🦋','🐟','🚲','✈️','🎸','☂️','🍌','🍐','🌵','🏠','⭐','🚀','🐧','🦕','🔑'];
+  var OMB2 = [['🐶','🐱','🐰','🦊','🐻'], ['🍎','🍊','🍐','🍑','🍋'], ['🚗','🚙','🚌','🚕','🚓'], ['🐦','🐤','🦆','🦉','🐧'], ['🐟','🐠','🐡','🐬','🐳']];
+  var oDone=0, oLock=false, oErr=0, oAns=null;
+  function newOmbres(intro){
+    oLock=false; oErr=0; dots('oDots', oDone);
+    var opts;
+    if(niveau() === 2){ opts = shuffle(rnd(OMB2)).slice(0,3); } else { opts = shuffle(OMB1).slice(0,3); }
+    oAns = rnd(opts);
+    var sh = $('oShadow'); sh.classList.remove('reveal'); sh.textContent = oAns;
+    var box = $('oChoices'); box.innerHTML = '';
+    shuffle(opts).forEach(function(e){
+      var b = document.createElement('button'); b.className = 'choice'; b.textContent = e; b.dataset.e = e;
+      tap(b, function(){
+        if(oLock) return;
+        if(e === oAns){ oLock = true; b.classList.add('good'); sh.classList.add('reveal'); oDone++; winRound('ombres', 'oDots', oDone, ROUND, ['x_pop'], newOmbres); }
+        else {
+          oErr++;
+          if(oErr >= 2) box.querySelectorAll('.choice').forEach(function(x){ if(x.dataset.e === oAns) x.classList.add('hintme'); });
+          wrong(b);
+        }
+      });
+      box.appendChild(b);
+    });
+    if(intro) play(['c_ombres']);
+  }
+  tap($('oSay'), function(){ if(!oLock) play(['c_ombres']); });
+
+  /* ---------- Labyrinthe : salles n×n, les murs sont des traits entre les cases ----------
+     Généré à chaque partie par parcours en profondeur : toujours exactement un chemin entre deux cases. */
+  var LROUND = 3, lDone=0, lN=0, lOpen=null, lSeen=null, lPos=0, lGoal=0, lLock=false;
+  var DIRS = [[0,-1,'N','S'],[1,0,'E','O'],[0,1,'S','N'],[-1,0,'O','E']];
+  function makeMaze(n){
+    var open = []; for(var i=0;i<n*n;i++) open.push({N:0,E:0,S:0,O:0});
+    var stack = [0], seen = {0:1};
+    while(stack.length){
+      var c = stack[stack.length-1], x = c%n, y = Math.floor(c/n);
+      var nb = shuffle(DIRS).filter(function(d){ var X=x+d[0], Y=y+d[1]; return X>=0 && Y>=0 && X<n && Y<n && !seen[Y*n+X]; });
+      if(!nb.length){ stack.pop(); continue; }
+      var d = nb[0], q = (y+d[1])*n + (x+d[0]);
+      open[c][d[2]] = 1; open[q][d[3]] = 1; seen[q] = 1; stack.push(q);
+    }
+    return open;
+  }
+  function renderMaze(){
+    var box = $('lMaze'); box.innerHTML = ''; box.style.gridTemplateColumns = 'repeat(' + lN + ',minmax(0,1fr))';
+    var me = cur() ? cur().avatar : '🐰';
+    lOpen.forEach(function(o, i){
+      var b = document.createElement('button');
+      b.className = 'mz' + (lSeen[i] ? ' seen' : '');
+      b.dataset.o = (o.N?'N':'') + (o.E?'E':'') + (o.S?'S':'') + (o.O?'O':'');
+      var w = '6px solid #5A4A7A', t = '1px solid #EDE3D2';
+      b.style.borderTop = o.N ? t : w; b.style.borderRight = o.E ? t : w; b.style.borderBottom = o.S ? t : w; b.style.borderLeft = o.O ? t : w;
+      b.textContent = i === lPos ? me : (i === lGoal ? '⭐' : '');
+      tap(b, function(){ moveTo(i, b); }, 80);
+      box.appendChild(b);
+    });
+  }
+  // on touche une case voisine, ou plus loin en ligne droite si aucun mur ne bloque
+  function moveTo(i, b){
+    if(lLock || i === lPos) return;
+    var x0 = lPos%lN, y0 = Math.floor(lPos/lN), x1 = i%lN, y1 = Math.floor(i/lN);
+    var no = function(){ b.classList.remove('no'); void b.offsetWidth; b.classList.add('no'); play(['x_boing']); };
+    if(x0 !== x1 && y0 !== y1) return no();
+    var dir = x0 === x1 ? (y1 > y0 ? 'S' : 'N') : (x1 > x0 ? 'E' : 'O');
+    var step = {N:-lN, S:lN, E:1, O:-1}[dir];
+    for(var k = lPos; k !== i; k += step){ if(!lOpen[k][dir]) return no(); }
+    for(var k2 = lPos; k2 !== i; k2 += step) lSeen[k2] = 1;
+    lPos = i;
+    if(lPos === lGoal){ lLock = true; renderMaze(); lDone++; winRound('laby', 'lDots', lDone, LROUND, ['x_pop'], newLaby); }
+    else renderMaze();
+  }
+  function newLaby(intro){
+    lLock = false; dots('lDots', lDone, LROUND);
+    lN = niveau() === 2 ? 6 : 4;
+    lOpen = makeMaze(lN); lSeen = lOpen.map(function(){ return 0; });
+    lPos = 0; lGoal = lN*lN - 1;
+    renderMaze();
+    if(intro) play(['c_laby']);
+  }
+
   /* ---------- Démarrage : choisir l'enfant ---------- */
   if(kids.length === 1 && !cur()){ active = kids[0].id; store('lire_actif', active); stars = kids[0].stars; }
-  renderStars(); renderKidAdmin();
+  renderStars(); renderKidAdmin(); renderAlbumInfo();
   if(kids.length !== 1) go('who', true);
 })();
 </script>

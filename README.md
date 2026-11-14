@@ -30,6 +30,15 @@ App web installable sur téléphone (icône sur l'écran d'accueil, plein écran
 | L'intrus | 3 d'une famille + 1 autre (fruits, animaux, véhicules…) | familles plus fines (animaux qui volent / de la mer / de la terre) |
 | Memory | 3 paires | 6 paires |
 | Sudoku 4×4 (images) | 4 cases vides | 8 cases vides |
+| Compter | 1 à 5 objets | 3 à 10 objets |
+| Les ombres | silhouettes très différentes | silhouettes proches (même famille) |
+| Labyrinthe | 4×4 salles | 6×6 salles (généré à chaque partie, toujours un chemin) |
+
+Rubrique Lire : **Complète le mot** (une syllabe manque : mo·❓).
+
+### Album d'autocollants
+Un autocollant surprise toutes les **5 étoiles** (40 au total), annoncé juste après le « Bravo »,
+album propre à chaque enfant (bouton « Mes autocollants » sur l'accueil).
 
 Chaque grille de sudoku est vérifiée : **une seule solution** (`tests/sudoku-unicite.js` contrôle 4 000 grilles).
 Musique : mélodie originale générée par l'app (Web Audio, aucun fichier), **partout (accueil, Lire, Logique), sauf « J'entends ? » et

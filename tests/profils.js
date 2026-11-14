@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.addInitScript(()=>{window.__log=[];HTMLMediaElement.prototype.play=function(){const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===this.src);window.__log.push(k);setTimeout(()=>this.onended&&this.onended(),30);return Promise.resolve();};HTMLMediaElement.prototype.pause=function(){};});
+await p.addInitScript(()=>{setInterval(()=>{const s=document.getElementById('sticker');if(s&&s.classList.contains('on'))s.classList.remove('on');},40);window.__log=[];HTMLMediaElement.prototype.play=function(){const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===this.src);window.__log.push(k);setTimeout(()=>this.onended&&this.onended(),30);return Promise.resolve();};HTMLMediaElement.prototype.pause=function(){};});
 await p.goto((process.env.APP_URL||'http://localhost:8766/index.html'));const W=ms=>p.waitForTimeout(ms);
 console.log('start screen who on:',await p.$eval('#who',e=>e.className),'| noKid hidden:',await p.$eval('#noKid',e=>e.hidden));
 await p.screenshot({path:'/tmp/who0.png'});

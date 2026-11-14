@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.addInitScript(()=>{window.__played=[];
+await p.addInitScript(()=>{setInterval(()=>{const s=document.getElementById('sticker');if(s&&s.classList.contains('on'))s.classList.remove('on');},40);window.__played=[];
   localStorage.setItem('lire_profils',JSON.stringify([{id:'a',name:'Léa',avatar:'🐰',stars:0,level:2},{id:'b',name:'Noah',avatar:'🐼',stars:0,level:1}]));localStorage.setItem('lire_actif','a');
   HTMLMediaElement.prototype.play=function(){const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===this.src);window.__played.push(k||'??');setTimeout(()=>this.onended&&this.onended(),25);return Promise.resolve();};HTMLMediaElement.prototype.pause=function(){};});
 await p.goto((process.env.APP_URL||(process.env.APP_URL||'http://localhost:8766/index.html')));const W=ms=>p.waitForTimeout(ms);

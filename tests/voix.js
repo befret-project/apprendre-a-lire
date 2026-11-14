@@ -2,7 +2,7 @@ const {chromium,devices}=require('playwright');
 async function run(label, ctxOpts, voices){
   const b=await chromium.launch();const ctx=await b.newContext(ctxOpts);const p=await ctx.newPage();
   const errs=[];p.on('pageerror',e=>errs.push(e.message));
-  await p.addInitScript((voices)=>{window.__log=[];
+  await p.addInitScript((voices)=>{setInterval(()=>{const s=document.getElementById('sticker');if(s&&s.classList.contains('on'))s.classList.remove('on');},40);window.__log=[];
     HTMLMediaElement.prototype.play=function(){const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===this.src);window.__log.push('REC:'+k);setTimeout(()=>this.onended&&this.onended(),30);return Promise.resolve();};
     HTMLMediaElement.prototype.pause=function(){};
     const s={speaking:false,pending:false,getVoices:()=>voices,addEventListener(){},speak(u){window.__log.push('TTS:'+u.text+(u.voice?' ['+u.voice.name+']':''));setTimeout(()=>u.onend&&u.onend(),30);},cancel(){},resume(){}};

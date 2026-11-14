@@ -1,6 +1,6 @@
 const {chromium}=require('playwright');(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:800}});
 const errs=[];p.on('pageerror',e=>errs.push(e.message));
-await p.addInitScript(()=>{window.__played=[];
+await p.addInitScript(()=>{setInterval(()=>{const s=document.getElementById('sticker');if(s&&s.classList.contains('on'))s.classList.remove('on');},40);window.__played=[];
   HTMLMediaElement.prototype.play=function(){const src=this.src;const k=Object.keys(window.SONS||{}).find(k=>window.SONS[k]===src)||('??'+src.slice(0,30));window.__played.push(k);setTimeout(()=>this.dispatchEvent(new Event('ended')),60);return Promise.resolve();};
   HTMLMediaElement.prototype.pause=function(){};});
 await p.goto((process.env.APP_URL||(process.env.APP_URL||'http://localhost:8766/index.html')));await p.waitForTimeout(200);if(await p.$eval('#who',e=>e.classList.contains('on'))){await p.click('#kids .kid >> nth=0');await p.waitForTimeout(300);}const W=ms=>p.waitForTimeout(ms);
