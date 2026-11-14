@@ -649,8 +649,9 @@
   var screenNow = 'home';
   function go(id, silent){
     stopAudio(); closeEnd(); closeBravo(); screenNow = id;
-    // musique seulement dans la rubrique Logique (elle gênerait l'écoute des sons dans les jeux de lecture)
-    var logi = LOGIQUE.indexOf(id) >= 0;
+    // musique dans Logique et dans Lire, SAUF « J'entends ? » et « Écoute et trouve » :
+    // là, entendre le son précis est l'exercice (choix des parents, nov. 2026)
+    var logi = LOGIQUE.indexOf(id) >= 0 || ['lire','lettres','peche','syllabes','train','mots'].indexOf(id) >= 0;
     document.body.classList.toggle('musique-ok', logi);
     if(logi) Music.start(); else Music.stop();
     document.body.classList.toggle('at-home', id==='home' || id==='who');

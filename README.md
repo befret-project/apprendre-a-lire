@@ -32,8 +32,8 @@ App web installable sur téléphone (icône sur l'écran d'accueil, plein écran
 | Sudoku 4×4 (images) | 4 cases vides | 8 cases vides |
 
 Chaque grille de sudoku est vérifiée : **une seule solution** (`tests/sudoku-unicite.js` contrôle 4 000 grilles).
-Musique : mélodie originale générée par l'app (Web Audio, aucun fichier), **seulement dans la rubrique Logique**
-(elle gênerait l'écoute des sons dans les jeux de lecture), baissée automatiquement quand la voix parle, bouton 🎵 pour la couper.
+Musique : mélodie originale générée par l'app (Web Audio, aucun fichier), **dans Logique et dans Lire, sauf « J'entends ? » et
+« Écoute et trouve »** (là, entendre le son précis est l'exercice), baissée automatiquement quand la voix parle, bouton 🎵 pour la couper.
 
 Profils : un par enfant (prénom + animal, étoiles séparées, **niveau**), gardés **uniquement sur l'appareil** (`localStorage`).
 Le niveau se change dans « Pour les parents » (bouton « Niveau ⇄ » à côté de chaque enfant).
